@@ -96,14 +96,13 @@ Three homepage layout concepts will be presented:
 
 ## 💰 Estimated Budget
 
-| Item                        | Estimated Cost (USD) |
+| Item                        | Cost (USD)           |
 |-----------------------------|----------------------|
-| Design & Wireframes         | $400–$600            |
-| Development & CMS Setup     | $1,000–$1,500        |
-| E-Commerce Integration      | $300–$500            |
-| Multimedia & Donation Setup | $200–$400            |
-| SEO & Performance Tuning    | $200–$300            |
-| Post-Launch Maintenance     | $75–$150/month       |
+| Development & CMS Setup     | $100                 |
+| E-Commerce Integration      | $100                 |
+| Multimedia & Donation Setup | $100                 |
+| SEO & Performance Tuning    | $100                 |
+| Post-Launch Maintenance     | $150/Year            |
 
 ---
 
