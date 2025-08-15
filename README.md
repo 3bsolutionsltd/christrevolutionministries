@@ -8,6 +8,7 @@
 ## 📚 Repository Navigation
 - **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Complete git workflow guide and best practices
 - **[GIT_WORKFLOW.md](./GIT_WORKFLOW.md)** - Quick reference for merging changes from codespace to main
+- **[WORKFLOW_DEMO.md](./WORKFLOW_DEMO.md)** - Live demonstration of codespace to main branch workflow
 - **[REPOSITORY_STATUS.md](./REPOSITORY_STATUS.md)** - Current repository status and recommendations
 - **[index.md](./index.md)** - Website content structure and layout specifications
 
