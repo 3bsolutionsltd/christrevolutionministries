@@ -5,6 +5,14 @@
 
 ---
 
+## 📚 Repository Navigation
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Complete git workflow guide and best practices
+- **[GIT_WORKFLOW.md](./GIT_WORKFLOW.md)** - Quick reference for merging changes from codespace to main
+- **[REPOSITORY_STATUS.md](./REPOSITORY_STATUS.md)** - Current repository status and recommendations
+- **[index.md](./index.md)** - Website content structure and layout specifications
+
+---
+
 ## 🔥 Project Overview
 
 Christ Revolution Ministries is redesigning its website to elevate its digital presence, foster deeper engagement, and expand outreach through interactive features and e-commerce capabilities. The new platform will serve as a dynamic hub for worship, learning, giving, and community connection.
