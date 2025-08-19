@@ -96,7 +96,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./out/
-        server-dir: /public_html/dev/
+        server-dir: ./dev/
         dangerous-clean-slate: true
         exclude: |
           **/.git*
@@ -113,7 +113,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./out/
-        server-dir: /public_html/
+        server-dir: ./
         exclude: |
           **/.git*
           **/.git*/**
