@@ -63,6 +63,7 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./out/
         server-dir: /public_html/dev/
+        dangerous-clean-slate: true
         exclude: |
           **/.git*
           **/.git*/**
@@ -85,6 +86,8 @@ jobs:
           **/node_modules/**
           **/.DS_Store
           **/Thumbs.db
+          **/dev/**
+          **/home/**
           
     - name: Deployment Summary
       run: |
