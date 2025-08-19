@@ -43,7 +43,10 @@ jobs:
         NEXT_PUBLIC_ENVIRONMENT: staging
       run: |
         echo "Building for staging environment..."
+        echo "NODE_ENV=$NODE_ENV"
+        echo "NEXT_PUBLIC_ENVIRONMENT=$NEXT_PUBLIC_ENVIRONMENT"
         npm run build
+        ls -la out/
       
     - name: Build project for production
       if: env.DEPLOY_ENV == 'production'
@@ -52,7 +55,10 @@ jobs:
         NEXT_PUBLIC_ENVIRONMENT: production
       run: |
         echo "Building for production environment..."
+        echo "NODE_ENV=$NODE_ENV"
+        echo "NEXT_PUBLIC_ENVIRONMENT=$NEXT_PUBLIC_ENVIRONMENT"
         npm run build
+        ls -la out/
         
     - name: Deploy to Staging (dev.christrevolutionministries.org)
       if: env.DEPLOY_ENV == 'staging'
