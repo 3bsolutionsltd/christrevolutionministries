@@ -36,6 +36,15 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
+    - name: Check TypeScript and ESLint configuration
+      run: |
+        echo "Checking TypeScript config..."
+        cat tsconfig.json
+        echo "Checking ESLint config..."
+        cat .eslintrc.json
+        echo "Checking Next.js config..."
+        cat next.config.js
+      
     - name: Build project for staging
       if: env.DEPLOY_ENV == 'staging'
       env:
@@ -45,8 +54,19 @@ jobs:
         echo "Building for staging environment..."
         echo "NODE_ENV=$NODE_ENV"
         echo "NEXT_PUBLIC_ENVIRONMENT=$NEXT_PUBLIC_ENVIRONMENT"
-        npm run build
-        ls -la out/
+        echo "Checking package.json..."
+        cat package.json | grep -A 10 '"scripts"'
+        echo "Running build with error output..."
+        npm run build || (echo "Build failed, checking for errors..." && npm run lint && exit 1)
+        echo "Build completed, checking output..."
+        ls -la
+        if [ -d "out" ]; then
+          echo "✅ Out directory created!"
+          ls -la out/
+        else
+          echo "❌ No out directory found"
+          exit 1
+        fi
       
     - name: Build project for production
       if: env.DEPLOY_ENV == 'production'
@@ -57,8 +77,16 @@ jobs:
         echo "Building for production environment..."
         echo "NODE_ENV=$NODE_ENV"
         echo "NEXT_PUBLIC_ENVIRONMENT=$NEXT_PUBLIC_ENVIRONMENT"
-        npm run build
-        ls -la out/
+        npm run build || (echo "Build failed, checking for errors..." && npm run lint && exit 1)
+        echo "Build completed, checking output..."
+        ls -la
+        if [ -d "out" ]; then
+          echo "✅ Out directory created!"
+          ls -la out/
+        else
+          echo "❌ No out directory found"
+          exit 1
+        fi
         
     - name: Deploy to Staging (dev.christrevolutionministries.org)
       if: env.DEPLOY_ENV == 'staging'
