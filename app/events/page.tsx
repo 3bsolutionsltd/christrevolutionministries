@@ -184,10 +184,10 @@ export default function EventsPage() {
     });
   };
 
-  const getEventStatus = (dateString) => {
+  const getEventStatus = (dateString: string) => {
     const eventDate = new Date(dateString);
     const today = new Date();
-    const timeDiff = eventDate - today;
+    const timeDiff = eventDate.getTime() - today.getTime();
     const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
     if (daysDiff < 0) return { status: 'Past', color: 'gray' };
