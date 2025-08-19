@@ -38,15 +38,21 @@ jobs:
       
     - name: Build project for staging
       if: env.DEPLOY_ENV == 'staging'
+      env:
+        NODE_ENV: production
+        NEXT_PUBLIC_ENVIRONMENT: staging
       run: |
         echo "Building for staging environment..."
-        npm run build:staging
+        npm run build
       
     - name: Build project for production
       if: env.DEPLOY_ENV == 'production'
+      env:
+        NODE_ENV: production
+        NEXT_PUBLIC_ENVIRONMENT: production
       run: |
         echo "Building for production environment..."
-        npm run build:production
+        npm run build
         
     - name: Deploy to Staging (dev.christrevolutionministries.org)
       if: env.DEPLOY_ENV == 'staging'
