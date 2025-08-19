@@ -62,7 +62,7 @@ jobs:
         
     - name: Deploy to Staging (dev.christrevolutionministries.org)
       if: env.DEPLOY_ENV == 'staging'
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      uses: SamKirkland/FTP-Deploy-Action@4.3.5
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
@@ -79,7 +79,7 @@ jobs:
           
     - name: Deploy to Production (christrevolutionministries.org)
       if: env.DEPLOY_ENV == 'production'
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      uses: SamKirkland/FTP-Deploy-Action@4.3.5
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
