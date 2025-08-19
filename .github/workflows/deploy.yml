@@ -2,12 +2,26 @@ name: Deploy to Hostinger
 
 on:
   push:
+    branches: [ main, develop ]
+  pull_request:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    
+    env:
+      DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
     
     steps:
     - name: Checkout code
@@ -22,10 +36,36 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
-    - name: Build project
-      run: npm run build
+    - name: Build project for staging
+      if: env.DEPLOY_ENV == 'staging'
+      run: |
+        echo "Building for staging environment..."
+        npm run build:staging
       
-    - name: Deploy to Hostinger via FTP
+    - name: Build project for production
+      if: env.DEPLOY_ENV == 'production'
+      run: |
+        echo "Building for production environment..."
+        npm run build:production
+        
+    - name: Deploy to Staging (dev.christrevolutionministries.org)
+      if: env.DEPLOY_ENV == 'staging'
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./out/
+        server-dir: /public_html/dev/
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.DS_Store
+          **/Thumbs.db
+          
+    - name: Deploy to Production (christrevolutionministries.org)
+      if: env.DEPLOY_ENV == 'production'
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
         server: ${{ secrets.FTP_SERVER }}
@@ -39,3 +79,13 @@ jobs:
           **/node_modules/**
           **/.DS_Store
           **/Thumbs.db
+          
+    - name: Deployment Summary
+      run: |
+        echo "🚀 Deployment completed!"
+        echo "Environment: ${{ env.DEPLOY_ENV }}"
+        if [ "${{ env.DEPLOY_ENV }}" == "staging" ]; then
+          echo "🌐 Staging URL: https://dev.christrevolutionministries.org"
+        else
+          echo "🌐 Production URL: https://christrevolutionministries.org"
+        fi
