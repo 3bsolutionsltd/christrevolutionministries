@@ -1,10 +1,28 @@
 "use client";
 import { useState, useEffect } from 'react';
 
+interface Event {
+  id: number;
+  title: string;
+  date: string;
+  time: string;
+  endTime: string;
+  location: string;
+  category: string;
+  description: string;
+  image: string;
+  featured: boolean;
+  capacity: number;
+  registered: number;
+  price: string;
+  speakers: string[];
+  agenda: { time: string; activity: string; }[];
+}
+
 export default function EventsPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
-  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [currentView, setCurrentView] = useState('grid'); // 'grid' or 'calendar'
   const [selectedCategory, setSelectedCategory] = useState('all');
 
