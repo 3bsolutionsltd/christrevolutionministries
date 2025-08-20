@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
+import NavigationBar from '../components/NavigationBar';
 
 interface Ministry {
   title: string;
@@ -91,156 +92,11 @@ const ministries: Ministry[] = [
 
 export default function MinistriesPage() {
   const [selectedMinistry, setSelectedMinistry] = useState<Ministry | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
       {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        scrollY > 50 
-          ? 'bg-white/95 backdrop-blur-md shadow-lg py-2' 
-          : 'bg-white/90 backdrop-blur-sm py-4'
-      }`}>
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center space-x-3 group">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
-              <img src="/logo-100X100.png" alt="CRM Logo" className="relative w-12 h-12 rounded-full shadow-lg border-2 border-blue-200 group-hover:border-blue-300 transition-all duration-300" />
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
-            </div>
-            <div>
-              <h1 className="font-bold text-lg bg-gradient-to-r from-blue-900 to-purple-800 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-purple-600 transition-all duration-300">
-                Christ Revolution Ministries
-              </h1>
-              <p className="text-xs text-blue-600 group-hover:text-blue-700 transition-colors duration-300">
-                Blessed to be a blessing
-              </p>
-            </div>
-          </div>
-          
-          {/* Enhanced Desktop Menu */}
-          <ul className="hidden md:flex items-center space-x-2">
-            <li>
-              <a 
-                href="/" 
-                className="relative px-4 py-2 font-medium text-gray-700 hover:text-blue-600 transition-all duration-300 group"
-              >
-                <span className="relative z-10">Home</span>
-                <div className="absolute inset-0 bg-blue-50 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/about" 
-                className="relative px-4 py-2 font-medium text-gray-700 hover:text-blue-600 transition-all duration-300 group"
-              >
-                <span className="relative z-10">About</span>
-                <div className="absolute inset-0 bg-blue-50 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/ministries" 
-                className="relative px-4 py-2 font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-              >
-                <span className="relative z-10">Ministries</span>
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/sermons" 
-                className="relative px-4 py-2 font-medium text-gray-700 hover:text-blue-600 transition-all duration-300 group"
-              >
-                <span className="relative z-10">Sermons</span>
-                <div className="absolute inset-0 bg-blue-50 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/events" 
-                className="relative px-4 py-2 font-medium text-gray-700 hover:text-blue-600 transition-all duration-300 group"
-              >
-                <span className="relative z-10">Events</span>
-                <div className="absolute inset-0 bg-blue-50 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/give" 
-                className="relative px-4 py-2 font-medium text-gray-700 hover:text-blue-600 transition-all duration-300 group"
-              >
-                <span className="relative z-10">Give</span>
-                <div className="absolute inset-0 bg-blue-50 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/contact" 
-                className="relative px-4 py-2 font-medium text-gray-700 hover:text-blue-600 transition-all duration-300 group"
-              >
-                <span className="relative z-10">Contact</span>
-                <div className="absolute inset-0 bg-blue-50 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-              </a>
-            </li>
-          </ul>
-
-          {/* Enhanced Mobile Menu Button */}
-          <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden relative p-3 rounded-xl bg-gradient-to-r from-blue-100 to-purple-100 hover:from-blue-200 hover:to-purple-200 shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 group"
-          >
-            <div className="w-6 h-6 flex flex-col justify-center space-y-1.5">
-              <span className={`block h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
-              <span className={`block h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></span>
-              <span className={`block h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-300/20 to-purple-300/20 rounded-xl scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-          </button>
-        </div>
-
-        {/* Enhanced Mobile Menu */}
-        <div className={`md:hidden bg-white/95 backdrop-blur-md shadow-2xl transition-all duration-500 ${
-          isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        } overflow-hidden border-t border-blue-100`}>
-          <div className="px-6 py-6 space-y-3">
-            <a href="/" className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 hover:translate-x-2 group">
-              <span className="text-blue-500 group-hover:text-blue-600 transition-colors duration-300">🏠</span>
-              <span>Home</span>
-            </a>
-            <a href="/about" className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 hover:translate-x-2 group">
-              <span className="text-blue-500 group-hover:text-blue-600 transition-colors duration-300">ℹ️</span>
-              <span>About</span>
-            </a>
-            <a href="/ministries" className="flex items-center space-x-3 text-white bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2 rounded-lg font-medium shadow-md">
-              <span className="text-white">⛪</span>
-              <span>Ministries</span>
-            </a>
-            <a href="/sermons" className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 hover:translate-x-2 group">
-              <span className="text-blue-500 group-hover:text-blue-600 transition-colors duration-300">📖</span>
-              <span>Sermons</span>
-            </a>
-            <a href="/events" className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 hover:translate-x-2 group">
-              <span className="text-blue-500 group-hover:text-blue-600 transition-colors duration-300">📅</span>
-              <span>Events</span>
-            </a>
-            <a href="/give" className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 hover:translate-x-2 group">
-              <span className="text-blue-500 group-hover:text-blue-600 transition-colors duration-300">💝</span>
-              <span>Give</span>
-            </a>
-            <a href="/contact" className="flex items-center space-x-3 text-gray-700 hover:text-blue-600 font-medium transition-all duration-300 hover:translate-x-2 group">
-              <span className="text-blue-500 group-hover:text-blue-600 transition-colors duration-300">📞</span>
-              <span>Contact</span>
-            </a>
-          </div>
-        </div>
-      </nav>
+      <NavigationBar currentPage="ministries" />
 
       {/* Hero Section */}
       <section className="relative pt-24 pb-16 bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 overflow-hidden">
