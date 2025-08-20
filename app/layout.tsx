@@ -1,5 +1,7 @@
 import './globals.css'
 import { ReactNode } from 'react'
+// import ErrorBoundary from './components/ErrorBoundary'
+// import ErrorLogger from './components/ErrorLogger'
 
 export const metadata = {
   title: 'Christ Revolution Ministries',
@@ -13,12 +15,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        {isStaging && (
-          <div className="bg-yellow-500 text-black text-center py-1 text-sm font-medium">
-            🚧 STAGING ENVIRONMENT - dev.christrevolutionministries.org 🚧
-          </div>
-        )}
-        {children}
+        {/* <ErrorBoundary>
+          <ErrorLogger /> */}
+          {isStaging && (
+            <div className="bg-yellow-500 text-black text-center py-1 text-sm font-medium">
+              🚧 STAGING ENVIRONMENT - dev.christrevolutionministries.org 🚧
+            </div>
+          )}
+          {children}
+        {/* </ErrorBoundary> */}
       </body>
     </html>
   )
