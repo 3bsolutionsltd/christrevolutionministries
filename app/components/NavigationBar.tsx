@@ -44,12 +44,12 @@ export default function NavigationBar({ currentPage = '' }: NavigationBarProps) 
                   Blessed to be a blessing
                 </p>
               </div>
-              {/* Mobile-friendly shorter title */}
+              {/* Mobile version with smaller text but full name */}
               <div className="block sm:hidden">
-                <h1 className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  CR Ministries
+                <h1 className="text-xs font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent leading-tight">
+                  Christ Revolution Ministries
                 </h1>
-                <p className="text-xs text-blue-600">
+                <p className="text-xs text-blue-600 leading-tight">
                   Blessed to be a blessing
                 </p>
               </div>
