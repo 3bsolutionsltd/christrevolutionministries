@@ -18,16 +18,11 @@ interface ErrorData {
 const useErrorLogger = () => {
   useEffect(() => {
     const logError = async (errorData: ErrorData) => {
-      try {
-        await fetch('/api/log-error', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(errorData)
-        });
-      } catch (error) {
-        console.error('Failed to log error:', error);
-        console.error('Original error data:', errorData);
-      }
+      // For static export, just log to console in production
+      console.error('[Error Logger]', errorData);
+      
+      // You could also send to an external logging service here
+      // For example: LogRocket, Sentry, etc.
     };
 
     // Handle JavaScript errors
