@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
+import NavigationBar from './components/NavigationBar';
 
 const ministries = [
   { 
@@ -91,7 +92,6 @@ const sermons = [
 export default function Page() {
   const [sermonIdx, setSermonIdx] = useState(0);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -102,191 +102,8 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans overflow-x-hidden">
-      {/* Enhanced Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        scrollY > 50 
-          ? 'bg-white/95 backdrop-blur-md shadow-lg py-2' 
-          : 'bg-transparent py-4'
-      }`}>
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center space-x-3 group">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
-              <img src="/logo-100X100.png" alt="CRM Logo" className="relative w-12 h-12 rounded-full shadow-lg border-2 border-blue-200 group-hover:border-blue-300 transition-all duration-300" />
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
-            </div>
-            <div>
-              <h1 className={`font-bold transition-all duration-300 bg-gradient-to-r bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-purple-600 ${
-                scrollY > 50 ? 'text-lg from-blue-900 to-purple-800' : 'text-xl from-white to-blue-100'
-              }`}>
-                Christ Revolution Ministries
-              </h1>
-              <p className={`text-xs transition-all duration-300 group-hover:text-blue-700 ${
-                scrollY > 50 ? 'text-blue-600' : 'text-blue-200'
-              }`}>
-                Blessed to be a blessing
-              </p>
-            </div>
-          </div>
-          
-          {/* Desktop Menu */}
-          <ul className="hidden md:flex items-center space-x-8">
-            <li>
-              <a 
-                href="/" 
-                className={`font-medium transition-all duration-300 hover:scale-105 ${
-                  scrollY > 50 
-                    ? 'text-gray-700 hover:text-blue-600' 
-                    : 'text-white hover:text-yellow-400'
-                }`}
-              >
-                Home
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/about" 
-                className={`font-medium transition-all duration-300 hover:scale-105 ${
-                  scrollY > 50 
-                    ? 'text-gray-700 hover:text-blue-600' 
-                    : 'text-white hover:text-yellow-400'
-                }`}
-              >
-                About
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/ministries" 
-                className={`font-medium transition-all duration-300 hover:scale-105 ${
-                  scrollY > 50 
-                    ? 'text-gray-700 hover:text-blue-600' 
-                    : 'text-white hover:text-yellow-400'
-                }`}
-              >
-                Ministries
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/sermons" 
-                className={`font-medium transition-all duration-300 hover:scale-105 ${
-                  scrollY > 50 
-                    ? 'text-gray-700 hover:text-blue-600' 
-                    : 'text-white hover:text-yellow-400'
-                }`}
-              >
-                Sermons
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/events" 
-                className={`font-medium transition-all duration-300 hover:scale-105 ${
-                  scrollY > 50 
-                    ? 'text-gray-700 hover:text-blue-600' 
-                    : 'text-white hover:text-yellow-400'
-                }`}
-              >
-                Events
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/give" 
-                className={`font-medium transition-all duration-300 hover:scale-105 ${
-                  scrollY > 50 
-                    ? 'text-gray-700 hover:text-blue-600' 
-                    : 'text-white hover:text-yellow-400'
-                }`}
-              >
-                Give
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/contact" 
-                className={`font-medium transition-all duration-300 hover:scale-105 ${
-                  scrollY > 50 
-                    ? 'text-gray-700 hover:text-blue-600' 
-                    : 'text-white hover:text-yellow-400'
-                }`}
-              >
-                Contact
-              </a>
-            </li>
-          </ul>
-
-          {/* Mobile Menu Button */}
-          <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg bg-white/20 backdrop-blur-sm"
-          >
-            <div className="w-6 h-6 flex flex-col justify-center space-y-1">
-              <span className={`block h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-1' : ''}`}></span>
-              <span className={`block h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></span>
-              <span className={`block h-0.5 bg-white transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-1' : ''}`}></span>
-            </div>
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        <div className={`md:hidden bg-white shadow-xl transition-all duration-300 ${
-          isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        } overflow-hidden`}>
-          <div className="px-6 py-4 space-y-4">
-            <a 
-              href="/"
-              className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Home
-            </a>
-            <a 
-              href="/about"
-              className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              About
-            </a>
-            <a 
-              href="/ministries"
-              className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Ministries
-            </a>
-            <a 
-              href="/sermons"
-              className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Sermons
-            </a>
-            <a 
-              href="/events"
-              className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Events
-            </a>
-            <a 
-              href="/give"
-              className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Give
-            </a>
-            <a 
-              href="/contact"
-              className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Contact
-            </a>
-          </div>
-        </div>
-      </nav>
+      {/* Navigation */}
+      <NavigationBar currentPage="" />
 
       {/* Dramatic Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
