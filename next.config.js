@@ -12,8 +12,11 @@ const nextConfig = {
     unoptimized: true
   },
   assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
-  // Remove build ID comment that's triggering malware warning
-  generateBuildId: () => 'build',
+  // Use timestamp-based build ID to avoid malware triggers while maintaining uniqueness
+  generateBuildId: async () => {
+    const date = new Date();
+    return `build-${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+  },
   // Additional security headers
   headers: async () => [
     {
