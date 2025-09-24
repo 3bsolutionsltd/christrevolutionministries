@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface NavigationBarProps {
   currentPage?: string;
@@ -8,6 +8,11 @@ interface NavigationBarProps {
 
 export default function NavigationBar({ currentPage = '' }: NavigationBarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const navigationItems = [
     { href: '/', label: 'Home', icon: '🏠' },
@@ -25,7 +30,7 @@ export default function NavigationBar({ currentPage = '' }: NavigationBarProps) 
   };
 
   return (
-    <nav className="bg-white/95 backdrop-blur-md shadow-xl sticky top-0 z-50 border-b border-blue-100">
+    <nav className={`bg-white/95 backdrop-blur-md shadow-xl sticky top-0 z-50 border-b border-blue-100 ${!isClient ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo/Brand Section - Fixed for mobile */}
