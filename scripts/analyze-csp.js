@@ -4,14 +4,51 @@ const path = require('path');
 // Configuration
 const LOGS_DIR = path.join(process.cwd(), 'logs', 'csp');
 const REPORT_FILE = path.join(process.cwd(), 'logs', 'security', 'csp-analysis.json');
+const ERROR_LOG = path.join(process.cwd(), 'logs', 'security', 'errors.json');
 
-// Ensure directories exist
-if (!fs.existsSync(LOGS_DIR)) {
-  fs.mkdirSync(LOGS_DIR, { recursive: true });
+// Error logging function
+function logError(component, error, details) {
+  const timestamp = new Date().toISOString();
+  const errorObj = {
+    timestamp,
+    component,
+    error,
+    details
+  };
+
+  let errors = [];
+  try {
+    if (fs.existsSync(ERROR_LOG)) {
+      errors = JSON.parse(fs.readFileSync(ERROR_LOG, 'utf8'));
+    }
+  } catch (e) {
+    console.error('Error reading error log:', e);
+  }
+
+  errors = [errorObj, ...errors].slice(0, 100); // Keep last 100 errors
+  
+  try {
+    if (!fs.existsSync(path.dirname(ERROR_LOG))) {
+      fs.mkdirSync(path.dirname(ERROR_LOG), { recursive: true });
+    }
+    fs.writeFileSync(ERROR_LOG, JSON.stringify(errors, null, 2));
+  } catch (e) {
+    console.error('Error writing to error log:', e);
+  }
 }
 
-if (!fs.existsSync(path.dirname(REPORT_FILE))) {
-  fs.mkdirSync(path.dirname(REPORT_FILE), { recursive: true });
+// Ensure directories exist
+try {
+  if (!fs.existsSync(LOGS_DIR)) {
+    fs.mkdirSync(LOGS_DIR, { recursive: true });
+  }
+
+  if (!fs.existsSync(path.dirname(REPORT_FILE))) {
+    fs.mkdirSync(path.dirname(REPORT_FILE), { recursive: true });
+  }
+} catch (e) {
+  console.error('Error creating log directories:', e);
+  logError('CSPAnalysis', 'DirectoryCreation', e.message);
 }
 
 // Read all CSP log files

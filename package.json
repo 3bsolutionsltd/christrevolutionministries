@@ -13,7 +13,7 @@
     "deploy": "npm run export",
     "deploy:staging": "npm run build:staging",
     "deploy:production": "npm run build:production",
-    "security:check": "powershell -Command \"Write-Host '[Daily Security Check]'; Write-Host '1. Checking Security Headers...'; try { $headers = Invoke-WebRequest -Uri https://christrevolutionministries.org -Method HEAD | Select-Object -ExpandProperty Headers; if (-not (Test-Path logs/security)) { New-Item -ItemType Directory -Force -Path logs/security }; $headers | ConvertTo-Json | Out-File -FilePath './logs/security/headers.json'; Write-Host 'Headers saved to logs/security/headers.json' } catch { Write-Host 'Error checking headers: ' + $_.Exception.Message }; Write-Host '2. Checking SSL Certificate...'; try { $cert = Invoke-WebRequest -Uri https://christrevolutionministries.org | Select-Object -ExpandProperty Certificate; $cert | ConvertTo-Json | Out-File -FilePath './logs/security/certificate.json'; Write-Host 'Certificate info saved to logs/security/certificate.json' } catch { Write-Host 'Error checking certificate: ' + $_.Exception.Message }\"",
+    "security:check": "powershell -File ./scripts/security-check.ps1",
     "security:csp": "node scripts/analyze-csp.js",
     "security:monitor": "npm run security:check && npm run security:csp"
   },
