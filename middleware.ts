@@ -10,30 +10,21 @@ export function middleware(request: NextRequest) {
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com", // Required for Next.js and analytics
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.christrevolutionministries.org", // Restrict to own domain
       "style-src 'self' 'unsafe-inline'", // Required for styled-components
-      "img-src 'self' data: https: blob:", // Allow images from https sources
-      "font-src 'self' data: https:", // Allow web fonts
-      "connect-src 'self' https://cloudflareinsights.com", // Allow analytics
+      "img-src 'self' https://*.christrevolutionministries.org data:", // Restrict to own domain
+      "font-src 'self' data:", // Restrict font sources
+      "connect-src 'self'", // Restrict API connections
       "frame-ancestors 'none'", // Prevent clickjacking
       "form-action 'self'", // Restrict form submissions
       "base-uri 'self'", // Restrict base tag
-      "require-trusted-types-for 'script'", // Prevent DOM XSS
-      "trusted-types 'none'", // Disable trusted types (Next.js doesn't support it yet)
+      "object-src 'none'", // Prevent object injection
+      "manifest-src 'self'", // Restrict manifest files
+      "media-src 'self'", // Restrict media files
+      "worker-src 'none'", // Restrict workers
       "upgrade-insecure-requests", // Upgrade HTTP to HTTPS
+      "block-all-mixed-content", // Prevent mixed content
       "report-uri /api/csp-report" // Monitor violations using our own endpoint
-    ].join('; ')
-  )
-  )
-  
-  // Add CSP Report Only for testing new rules
-  response.headers.set(
-    'Content-Security-Policy-Report-Only',
-    [
-      "script-src 'strict-dynamic' 'nonce-{random}' 'unsafe-inline' http: https:",
-      "object-src 'none'",
-      "base-uri 'none'",
-      "report-uri https://christrevolutionministries.report-uri.com/r/d/csp/reportOnly"
     ].join('; ')
   )
 
