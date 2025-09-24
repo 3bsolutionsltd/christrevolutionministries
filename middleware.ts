@@ -21,20 +21,9 @@ export function middleware(request: NextRequest) {
       "require-trusted-types-for 'script'", // Prevent DOM XSS
       "trusted-types 'none'", // Disable trusted types (Next.js doesn't support it yet)
       "upgrade-insecure-requests", // Upgrade HTTP to HTTPS
-      "report-to default", // Use the Report-To header for CSP reports
-      "report-uri https://christrevolutionministries.report-uri.com/r/d/csp/enforce" // Monitor violations (fallback)
+      "report-uri /api/csp-report" // Monitor violations using our own endpoint
     ].join('; ')
   )
-
-  // Add Report-To header for better reporting
-  response.headers.set('Report-To', JSON.stringify({
-    group: "default",
-    max_age: 31536000,
-    endpoints: [
-      { url: "https://christrevolutionministries.report-uri.com/a/d/g" }
-    ],
-    include_subdomains: true
-  }))
   )
   
   // Add CSP Report Only for testing new rules
