@@ -87,18 +87,32 @@ jobs:
         
         # Copy static admin HTML files to root of subdomain
         echo "Copying static admin files to subdomain root..."
+        echo "Current directory contents:"
+        ls -la public/ | head -10
+        
         if [ -f "public/admin-login.html" ]; then
           cp public/admin-login.html out/login.html
-          echo "✅ Copied admin-login.html to login.html"
+          echo "✅ Copied admin-login.html to login.html ($(wc -c < out/login.html) bytes)"
+        else
+          echo "❌ public/admin-login.html not found"
         fi
+        
         if [ -f "public/admin-panel.html" ]; then
           cp public/admin-panel.html out/panel.html
-          echo "✅ Copied admin-panel.html to panel.html"
+          echo "✅ Copied admin-panel.html to panel.html ($(wc -c < out/panel.html) bytes)"
+        else
+          echo "❌ public/admin-panel.html not found"
         fi
+        
         if [ -f "public/admin-test.html" ]; then
           cp public/admin-test.html out/test.html
-          echo "✅ Copied admin-test.html to test.html"
+          echo "✅ Copied admin-test.html to test.html ($(wc -c < out/test.html) bytes)"
+        else
+          echo "❌ public/admin-test.html not found"
         fi
+        
+        echo "Final out directory contents:"
+        ls -la out/ | head -10
         
         # Restore API routes
         if [ -d "app/api.backup" ]; then
