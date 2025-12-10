@@ -24,33 +24,31 @@ try {
     fs.mkdirSync(backupDir, { recursive: true });
   }
 
-  // Only remove admin APIs in production for security
-  if (isProduction) {
-    // Move admin API routes
-    if (fs.existsSync(adminDir)) {
-      const adminBackup = path.join(backupDir, 'admin');
-      if (fs.existsSync(adminBackup)) {
-        fs.rmSync(adminBackup, { recursive: true });
-      }
-      // Copy first, then remove original
-      fs.cpSync(adminDir, adminBackup, { recursive: true });
-      fs.rmSync(adminDir, { recursive: true });
-      console.log('✅ Moved admin API routes to backup (production)');
+  // Always remove admin APIs for static builds (both staging and production)
+  // Admin APIs are only available on the separate admin server
+  
+  // Move admin API routes
+  if (fs.existsSync(adminDir)) {
+    const adminBackup = path.join(backupDir, 'admin');
+    if (fs.existsSync(adminBackup)) {
+      fs.rmSync(adminBackup, { recursive: true });
     }
+    // Copy first, then remove original
+    fs.cpSync(adminDir, adminBackup, { recursive: true });
+    fs.rmSync(adminDir, { recursive: true });
+    console.log('✅ Moved admin API routes to backup (static build)');
+  }
 
-    // Move auth API routes
-    if (fs.existsSync(authDir)) {
-      const authBackup = path.join(backupDir, 'auth');
-      if (fs.existsSync(authBackup)) {
-        fs.rmSync(authBackup, { recursive: true });
-      }
-      // Copy first, then remove original
-      fs.cpSync(authDir, authBackup, { recursive: true });
-      fs.rmSync(authDir, { recursive: true });
-      console.log('✅ Moved auth API routes to backup (production)');
+  // Move auth API routes
+  if (fs.existsSync(authDir)) {
+    const authBackup = path.join(backupDir, 'auth');
+    if (fs.existsSync(authBackup)) {
+      fs.rmSync(authBackup, { recursive: true });
     }
-  } else {
-    console.log('📝 Keeping admin APIs for staging environment');
+    // Copy first, then remove original
+    fs.cpSync(authDir, authBackup, { recursive: true });
+    fs.rmSync(authDir, { recursive: true });
+    console.log('✅ Moved auth API routes to backup (static build)');
   }  console.log('🎯 Ready for static build');
 } catch (error) {
   console.error('❌ Error preparing for build:', error.message);

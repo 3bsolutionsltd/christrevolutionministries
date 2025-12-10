@@ -6,6 +6,9 @@ import ContentSync from '../../../../lib/content-sync';
  * Allows admin to publish changes to static sites
  */
 
+// Only enable this API in admin mode
+export const dynamic = process.env.ADMIN_MODE === 'true' ? 'force-dynamic' : 'force-static';
+
 export async function POST(request: NextRequest) {
   try {
     // Only allow in admin mode
