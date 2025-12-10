@@ -34,6 +34,11 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^admin/?$ admin/index.html [L]
 
+# Admin subdomain static HTML files  
+RewriteRule ^login/?$ login.html [L]
+RewriteRule ^panel/?$ panel.html [L] 
+RewriteRule ^test/?$ test.html [L]
+
 # Fallback to main index.html for root requests
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

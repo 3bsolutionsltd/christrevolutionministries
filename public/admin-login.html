@@ -91,7 +91,7 @@
                     if (response.ok) {
                         showSuccess('Already authenticated! Redirecting...');
                         setTimeout(() => {
-                            window.location.href = '/admin-panel.html';
+                            window.location.href = '/panel.html';
                         }, 1500);
                     } else {
                         localStorage.removeItem('github-token');
@@ -127,9 +127,9 @@
                     
                     showSuccess(`Authentication successful! Welcome, ${user.login}. Redirecting...`);
                     
-                    setTimeout(() => {
-                        window.location.href = '/admin-panel.html';
-                    }, 1500);
+                      setTimeout(() => {
+                        window.location.href = '/panel.html';
+                      }, 1500);
                 } else {
                     showError('Invalid GitHub token. Please check your token and try again.');
                 }

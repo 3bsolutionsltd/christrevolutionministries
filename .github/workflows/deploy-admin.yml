@@ -85,6 +85,21 @@ jobs:
           fi
         }
         
+        # Copy static admin HTML files to root of subdomain
+        echo "Copying static admin files to subdomain root..."
+        if [ -f "public/admin-login.html" ]; then
+          cp public/admin-login.html out/login.html
+          echo "✅ Copied admin-login.html to login.html"
+        fi
+        if [ -f "public/admin-panel.html" ]; then
+          cp public/admin-panel.html out/panel.html
+          echo "✅ Copied admin-panel.html to panel.html"
+        fi
+        if [ -f "public/admin-test.html" ]; then
+          cp public/admin-test.html out/test.html
+          echo "✅ Copied admin-test.html to test.html"
+        fi
+        
         # Restore API routes
         if [ -d "app/api.backup" ]; then
           mv app/api.backup app/api

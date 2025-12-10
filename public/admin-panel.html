@@ -139,7 +139,7 @@
             const user = localStorage.getItem('github-user');
 
             if (!token) {
-                window.location.href = '/admin-login.html';
+                window.location.href = '/login.html';
                 return;
             }
 
@@ -170,7 +170,7 @@
         function logout() {
             localStorage.removeItem('github-token');
             localStorage.removeItem('github-user');
-            window.location.href = '/admin-login.html';
+            window.location.href = '/login.html';
         }
 
         async function editContent(type) {
