@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
 import { getHeroSlides, saveHeroSlides } from '../data-manager';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const slides = await getHeroSlides();

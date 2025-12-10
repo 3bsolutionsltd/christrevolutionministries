@@ -164,3 +164,53 @@ export async function getYouTubeLinks() {
 export async function saveYouTubeLinks(links: any[]) {
   return writeDataFile(YOUTUBE_LINKS_FILE, links);
 }
+
+// Hero slides operations
+export async function getHeroSlides() {
+  const defaultSlides = [
+    {
+      id: 1,
+      title: 'Welcome to Christ Revolution Ministries',
+      subtitle: 'Transforming Lives Through God\'s Love',
+      image: '/hero-slide-1.jpg',
+      buttonText: 'Join Us',
+      buttonLink: '/contact'
+    }
+  ];
+  return readDataFile(path.join(process.cwd(), 'data', 'hero-slides.json'), defaultSlides);
+}
+
+export async function saveHeroSlides(slides: any[]) {
+  return writeDataFile(path.join(process.cwd(), 'data', 'hero-slides.json'), slides);
+}
+
+// Homepage settings operations
+export async function getHomepageSettings() {
+  const defaultSettings = {
+    welcomeMessage: 'Welcome to Christ Revolution Ministries',
+    featuredMinistry: 1,
+    showUpcomingEvents: true,
+    maxEventsToShow: 3
+  };
+  return readDataFile(path.join(process.cwd(), 'data', 'homepage-settings.json'), defaultSettings);
+}
+
+export async function saveHomepageSettings(settings: any) {
+  return writeDataFile(path.join(process.cwd(), 'data', 'homepage-settings.json'), settings);
+}
+
+// Site settings operations
+export async function getSiteSettings() {
+  const defaultSettings = {
+    siteName: 'Christ Revolution Ministries',
+    tagline: 'Transforming Lives Through God\'s Love',
+    contactEmail: 'info@christrevolutionministries.org',
+    phone: '+1-234-567-8900',
+    address: '123 Faith Street, Hope City, HC 12345'
+  };
+  return readDataFile(path.join(process.cwd(), 'data', 'site-settings.json'), defaultSettings);
+}
+
+export async function saveSiteSettings(settings: any) {
+  return writeDataFile(path.join(process.cwd(), 'data', 'site-settings.json'), settings);
+}

@@ -4,6 +4,8 @@ import { writeFile } from 'fs/promises';
 import path from 'path';
 import { updateCacheVersion } from '../../../lib/cache-utils';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   const authError = await requireAuth(request);
   if (authError) return authError;
