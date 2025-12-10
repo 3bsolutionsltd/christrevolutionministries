@@ -45,7 +45,6 @@ jobs:
         # Verify build - check for static export files
         echo "📂 Checking build output..."
         ls -la
-        if [ -d ".next" ]; then
         if [ -d "out" ]; then
           echo "✅ Static export directory found"
           ls -la out/ | head -10
@@ -58,6 +57,8 @@ jobs:
           fi
         else
           echo "❌ No out directory found - static export failed"
+          echo "Available directories:"
+          ls -la | grep "^d"
           exit 1
         fi
 
@@ -89,6 +90,6 @@ jobs:
         echo ""
         echo "🔐 Admin Features Available:"
         echo "  • Content Management"
-        echo "  • File Uploads"  
-        echo "  • User Authentication"
+        echo "  • File Uploads"
+        echo "  • User Authentication" 
         echo "  • API Endpoints"
