@@ -1,0 +1,36 @@
+[
+  {
+    "title": "Welcome to Christ Revolution Ministries",
+    "subtitle": "Transforming Lives Through God's Love",
+    "image": "/uploads/1765275832175_worship_moment.jpg",
+    "order": 1,
+    "active": true,
+    "ctaText": "",
+    "ctaLink": "",
+    "id": "slide-1",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "title": "Join Us for Worship",
+    "subtitle": "Come and experience extraordinary communion with the Holy Spirit",
+    "image": "/uploads/1765276062868_congegation.jpg",
+    "order": 2,
+    "active": true,
+    "ctaText": "Join Our Service",
+    "ctaLink": "#service",
+    "id": "slide-2",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "title": "Experience God's Love",
+    "subtitle": "Igniting the Next Generation for Christ",
+    "image": "/uploads/1765280252408_children_dancing.jpg",
+    "order": 3,
+    "active": true,
+    "ctaText": "",
+    "ctaLink": "",
+    "id": "slide-3"
+  }
+]

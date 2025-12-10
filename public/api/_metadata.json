@@ -1,0 +1,10 @@
+{
+  "generated": "2025-12-10T05:29:47.933Z",
+  "environment": "production",
+  "files": [
+    "ministries.json",
+    "events.json",
+    "sermons.json",
+    "youtube-links.json"
+  ]
+}

@@ -1,27 +1,34 @@
 "use client";
 import { useState, useEffect } from 'react';
 import NavigationBar from './components/NavigationBar';
+import { getMinistries, getEvents, getSermons, getHeroSlides, getHomepageSettings, getSiteSettings } from './lib/data-fetchers';
+import { addCacheVersion } from './lib/cache-utils';
 
-const ministries = [
+// Default fallback data
+const defaultMinistries = [
   { 
+    id: 1,
     title: 'Youth Ministry', 
     desc: 'Empowering the next generation through discipleship, evangelism, and transformative experiences.',
     img: '/youth-web-330x201.jpg',
     icon: '👥'
   },
   { 
+    id: 2,
     title: 'Evangelism', 
     desc: 'Spreading the Gospel and reaching communities with the love and message of Christ.',
     img: '/evangelism-web-330x290.jpg',
     icon: '📖'
   },
   { 
+    id: 3,
     title: 'Worship & Music', 
     desc: 'Deep worship experiences that connect hearts to God through powerful music and praise.',
     img: '/worship_deep-552x262.jpg',
     icon: '🎵'
   },
   { 
+    id: 4,
     title: 'Hope & Restoration', 
     desc: 'Bringing hope to the broken-hearted and restoration to those in need of healing.',
     img: '/hope-370x230.jpg',
@@ -29,8 +36,9 @@ const ministries = [
   },
 ];
 
-const events = [
+const defaultEvents = [
   { 
+    id: 1,
     title: 'Faith Conference 2025', 
     date: 'Sept 15-17, 2025', 
     time: '7:00 PM',
@@ -40,6 +48,7 @@ const events = [
     img: '/faith-1024x533.jpg'
   },
   { 
+    id: 2,
     title: 'Youth Outreach', 
     date: 'Sept 5, 2025', 
     time: '6:00 PM',
@@ -49,6 +58,7 @@ const events = [
     img: '/youth-web-330x201.jpg'
   },
   { 
+    id: 3,
     title: 'Deep Worship Night', 
     date: 'Aug 28, 2025', 
     time: '7:30 PM',
@@ -59,8 +69,9 @@ const events = [
   },
 ];
 
-const sermons = [
+const defaultSermons = [
   { 
+    id: 1,
     title: 'Faith That Transforms', 
     speaker: 'Pastor Samuel Isiko', 
     date: 'Aug 18, 2025', 
@@ -70,6 +81,7 @@ const sermons = [
     img: '/faith-1170x450.jpg'
   },
   { 
+    id: 2,
     title: 'Going Deeper with God', 
     speaker: 'Pastor Samuel Isiko', 
     date: 'Aug 11, 2025', 
@@ -79,6 +91,7 @@ const sermons = [
     img: '/deep-570x345.jpg'
   },
   { 
+    id: 3,
     title: 'The Power of Transformation', 
     speaker: 'Pastor Samuel Isiko', 
     date: 'Aug 4, 2025', 
@@ -93,12 +106,63 @@ export default function Page() {
   const [sermonIdx, setSermonIdx] = useState(0);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [scrollY, setScrollY] = useState(0);
+  
+  // Dynamic data state
+  const [ministries, setMinistries] = useState(defaultMinistries);
+  const [events, setEvents] = useState(defaultEvents);
+  const [sermons, setSermons] = useState(defaultSermons);
+  const [heroSlides, setHeroSlides] = useState([]);
+  const [homepageSettings, setHomepageSettings] = useState(null);
+  const [siteSettings, setSiteSettings] = useState(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Fetch dynamic data from admin system
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [ministriesData, eventsData, sermonsData, slidesData, homepageData, siteData] = await Promise.all([
+          getMinistries(),
+          getEvents(),
+          getSermons(),
+          getHeroSlides(),
+          getHomepageSettings(),
+          getSiteSettings()
+        ]);
+        
+        if (ministriesData.length > 0) setMinistries(ministriesData);
+        if (eventsData.length > 0) setEvents(eventsData);
+        if (sermonsData.length > 0) setSermons(sermonsData);
+        if (slidesData.length > 0) setHeroSlides(slidesData);
+        if (homepageData) setHomepageSettings(homepageData);
+        if (siteData) setSiteSettings(siteData);
+      } catch (error) {
+        console.error('Error fetching dynamic data:', error);
+        // Keep using default data
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Auto-advance slideshow
+  useEffect(() => {
+    if (heroSlides.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+      }, 5000); // Change slide every 5 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [heroSlides.length]);
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans overflow-x-hidden">
@@ -107,14 +171,34 @@ export default function Page() {
 
       {/* Dramatic Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
-        {/* Background Image with Parallax Effect */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-1000"
-          style={{ 
-            backgroundImage: 'url(/home_page_one-1024x585.jpg)',
-            transform: `translateY(${scrollY * 0.5}px)`
-          }}
-        ></div>
+        {/* Dynamic Background Slideshow */}
+        {loading ? (
+          /* Loading state - show a gradient background */
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-purple-900 to-blue-800"></div>
+        ) : heroSlides.length > 0 ? (
+          /* Dynamic slideshow */
+          heroSlides.map((slide, index) => (
+            <div 
+              key={slide.id}
+              className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 ${
+                index === currentSlide ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ 
+                backgroundImage: `url(${addCacheVersion(slide.image || slide.imageUrl)})`,
+                transform: `translateY(${scrollY * 0.5}px)`
+              }}
+            ></div>
+          ))
+        ) : (
+          /* Fallback - only if no slides are configured */
+          <div 
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-1000"
+            style={{ 
+              backgroundImage: 'url(/home_page_one-1024x585.jpg)',
+              transform: `translateY(${scrollY * 0.5}px)`
+            }}
+          ></div>
+        )}
         
         {/* Gradient Overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-800/60 to-purple-900/80"></div>
@@ -130,30 +214,32 @@ export default function Page() {
         {/* Hero Content */}
         <div className="relative z-10 max-w-6xl mx-auto px-6 text-center pt-20">
           <div className="space-y-6">
-            {/* Main Headline */}
+            {/* Dynamic Main Headline */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-tight">
               <span className="block bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                CHRIST
+                {homepageSettings?.mainHeadline?.line1 || 'CHRIST'}
               </span>
               <span className="block text-white">
-                REVOLUTION
+                {homepageSettings?.mainHeadline?.line2 || 'REVOLUTION'}
               </span>
               <span className="block text-blue-200 text-2xl md:text-3xl lg:text-4xl font-light mt-2">
-                Ministries
+                {homepageSettings?.mainHeadline?.line3 || 'Ministries'}
               </span>
             </h1>
             
-            {/* Subheading */}
+            {/* Dynamic Subheading */}
             <p className="text-lg md:text-xl lg:text-2xl text-blue-100 font-light max-w-4xl mx-auto leading-relaxed">
-              Taking this generation back to God and making His voice heard in the nations
+              {homepageSettings?.heroSubtitle || homepageSettings?.tagline || 'Taking this generation back to God and making His voice heard in the nations'}
             </p>
             
-            {/* Animated Quote */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 max-w-2xl mx-auto border border-white/20">
-              <p className="text-base md:text-lg lg:text-xl text-yellow-200 italic font-medium">
-                "Blessed to be a blessing"
-              </p>
-            </div>
+            {/* Dynamic Animated Quote */}
+            {homepageSettings?.heroQuote && (
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 max-w-2xl mx-auto border border-white/20">
+                <p className="text-base md:text-lg lg:text-xl text-yellow-200 italic font-medium">
+                  {homepageSettings.heroQuote}
+                </p>
+              </div>
+            )}
             
             {/* CTA Buttons */}
             <div className="flex flex-col md:flex-row gap-6 justify-center items-center pt-8">
@@ -190,6 +276,23 @@ export default function Page() {
           </div>
         </div>
 
+        {/* Slideshow Indicators */}
+        {heroSlides.length > 1 && (
+          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
+            <div className="flex space-x-2">
+              {heroSlides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentSlide ? 'bg-yellow-400' : 'bg-white/50 hover:bg-white/75'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Scroll Indicator */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
           <div className="animate-bounce">
@@ -204,31 +307,31 @@ export default function Page() {
       <section id="about" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Pastor Image */}
+            {/* Dynamic Pastor Image */}
             <div className="relative">
               <div className="aspect-square overflow-hidden rounded-3xl shadow-2xl transform hover:scale-105 transition-transform duration-500">
                 <img 
-                  src="/director_founder_sam_isiko-390x324.jpg" 
-                  alt="Pastor Samuel Isiko" 
+                  src={addCacheVersion(homepageSettings?.pastorImage || "/director_founder_sam_isiko-390x324.jpg")} 
+                  alt={homepageSettings?.pastorName || "Pastor Samuel Isiko"} 
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute -bottom-6 -right-6 bg-yellow-400 text-black p-4 rounded-2xl shadow-xl">
                 <div className="text-center">
-                  <p className="font-bold text-lg">Pastor</p>
-                  <p className="text-sm">Samuel Isiko</p>
+                  <p className="font-bold text-lg">{homepageSettings?.pastorTitle || "Pastor"}</p>
+                  <p className="text-sm">{homepageSettings?.pastorName || "Samuel Isiko"}</p>
                 </div>
               </div>
             </div>
 
-            {/* About Content */}
+            {/* Dynamic About Content */}
             <div className="space-y-8">
               <div>
                 <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6">
                   Who We Are
                 </h2>
                 <p className="text-xl text-gray-600 leading-relaxed mb-8">
-                  Christ Revolution Ministry is a dynamic, life-transforming ministry with a vision of bringing God's Word and love to our community and beyond.
+                  {homepageSettings?.aboutText || "Christ Revolution Ministry is a dynamic, life-transforming ministry with a vision of bringing God's Word and love to our community and beyond."}
                 </p>
               </div>
 
@@ -240,7 +343,7 @@ export default function Page() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-3">Our Vision</h3>
-                  <p className="text-gray-600">To take this generation back to God and make His voice heard in the nations.</p>
+                  <p className="text-gray-600">{homepageSettings?.vision || "To take this generation back to God and make His voice heard in the nations."}</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -250,7 +353,7 @@ export default function Page() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-3">Our Mission</h3>
-                  <p className="text-gray-600">To multiply disciples through evangelism, discipleship, and prayer, bringing revival to individuals and families.</p>
+                  <p className="text-gray-600">{homepageSettings?.mission || "To multiply disciples through evangelism, discipleship, and prayer, bringing revival to individuals and families."}</p>
                 </div>
               </div>
             </div>
@@ -316,17 +419,17 @@ export default function Page() {
       <footer className="bg-gray-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            {/* Logo & About */}
+            {/* Dynamic Logo & About */}
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-3 mb-6">
                 <img src="/logo-100X100.png" alt="CRM Logo" className="w-12 h-12 rounded-full" />
                 <div>
-                  <h3 className="text-xl font-bold">Christ Revolution Ministries</h3>
-                  <p className="text-blue-300 text-sm">Blessed to be a blessing</p>
+                  <h3 className="text-xl font-bold">{homepageSettings?.churchName || "Christ Revolution Ministries"}</h3>
+                  <p className="text-blue-300 text-sm">{homepageSettings?.tagline || "Blessed to be a blessing"}</p>
                 </div>
               </div>
               <p className="text-gray-300 mb-6 leading-relaxed">
-                A dynamic, life-transforming ministry taking this generation back to God and making His voice heard in the nations.
+                {homepageSettings?.aboutText || "A dynamic, life-transforming ministry taking this generation back to God and making His voice heard in the nations."}
               </p>
               <div className="flex space-x-4">
                 <a href="#" className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors duration-200">
@@ -361,37 +464,48 @@ export default function Page() {
               </ul>
             </div>
 
-            {/* Contact Info */}
+            {/* Dynamic Contact Info */}
             <div>
               <h4 className="text-lg font-bold mb-6">Contact</h4>
               <div className="space-y-3 text-gray-300">
-                <p className="flex items-start space-x-2">
-                  <svg className="w-5 h-5 mt-0.5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-sm">Bulaga, Nakabugo Zion Estate, Doctor's Drive, Kampala, Uganda</span>
-                </p>
-                <p className="flex items-center space-x-2">
-                  <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                  </svg>
-                  <span className="text-sm">+256-772-245292</span>
-                </p>
-                <p className="flex items-center space-x-2">
-                  <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                  </svg>
-                  <span className="text-sm">info@christrevolutionministries.org</span>
-                </p>
+                {siteSettings?.contact?.address && (
+                  <p className="flex items-start space-x-2">
+                    <svg className="w-5 h-5 mt-0.5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm">
+                      {siteSettings.contact.address.street}, {siteSettings.contact.address.city}, {siteSettings.contact.address.state} {siteSettings.contact.address.zip}
+                    </span>
+                  </p>
+                )}
+                {siteSettings?.contact?.phone && (
+                  <p className="flex items-center space-x-2">
+                    <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                    </svg>
+                    <span className="text-sm">{siteSettings.contact.phone}</span>
+                  </p>
+                )}
+                {siteSettings?.contact?.email && (
+                  <p className="flex items-center space-x-2">
+                    <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                    </svg>
+                    <span className="text-sm">{siteSettings.contact.email}</span>
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
           <div className="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
-              © 2025 Christ Revolution Ministries. All rights reserved.
-            </p>
+            <div className="text-gray-400 text-sm">
+              <p>{siteSettings?.footer?.copyright || "© 2025 Christ Revolution Ministries. All rights reserved."}</p>
+              {siteSettings?.footer?.additionalText && (
+                <p className="mt-1">{siteSettings.footer.additionalText}</p>
+              )}
+            </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors duration-200">Privacy Policy</a>
               <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors duration-200">Terms of Service</a>

@@ -1,23 +1,27 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { getSermons } from '../lib/data-fetchers';
+import { addCacheVersion } from '../lib/cache-utils';
+import NavigationBar from '../components/NavigationBar';
 
 interface Sermon {
   id: number;
   title: string;
-  speaker: string;
+  speaker?: string;
   date: string;
-  series: string;
-  duration: string;
-  description: string;
-  thumbnail: string;
-  videoUrl: string;
-  audioUrl: string;
-  scripture: string;
-  category: string;
-  featured: boolean;
-  views: number;
-  downloads: number;
-  tags: string[];
+  series?: string;
+  duration?: string;
+  description?: string;
+  thumbnail?: string;
+  videoUrl?: string;
+  youtubeUrl?: string; // API uses this instead of videoUrl
+  audioUrl?: string;
+  scripture?: string;
+  category?: string;
+  featured?: boolean;
+  views?: number;
+  downloads?: number;
+  tags?: string[];
 }
 
 export default function SermonsPage() {
@@ -27,6 +31,8 @@ export default function SermonsPage() {
   const [currentFilter, setCurrentFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [sermons, setSermons] = useState<Sermon[]>([]);
+  const [loading, setLoading] = useState(true);
   const sermonsPerPage = 6;
 
   useEffect(() => {
@@ -35,7 +41,36 @@ export default function SermonsPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const sermons: Sermon[] = [
+  useEffect(() => {
+    const fetchSermons = async () => {
+      try {
+        const data = await getSermons();
+        setSermons(data);
+      } catch (error) {
+        console.error('Error fetching sermons:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSermons();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white text-gray-900 font-sans">
+        <NavigationBar currentPage="sermons" />
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-xl text-gray-600">Loading sermons...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const defaultSermons: Sermon[] = [
     {
       id: 1,
       title: 'Walking in God\'s Purpose',
@@ -182,34 +217,38 @@ export default function SermonsPage() {
     }
   ];
 
+  const currentSermons = sermons.length > 0 ? sermons : defaultSermons;
+
   const categories = [
-    { value: 'all', label: 'All Sermons', count: sermons.length },
-    { value: 'Purpose', label: 'Purpose & Calling', count: sermons.filter(s => s.category === 'Purpose').length },
-    { value: 'Faith', label: 'Faith & Trust', count: sermons.filter(s => s.category === 'Faith').length },
-    { value: 'Love', label: 'Love & Service', count: sermons.filter(s => s.category === 'Love').length },
-    { value: 'Victory', label: 'Victory & Strength', count: sermons.filter(s => s.category === 'Victory').length },
-    { value: 'Worship', label: 'Worship & Praise', count: sermons.filter(s => s.category === 'Worship').length },
-    { value: 'Family', label: 'Family & Marriage', count: sermons.filter(s => s.category === 'Family').length },
-    { value: 'Evangelism', label: 'Evangelism & Mission', count: sermons.filter(s => s.category === 'Evangelism').length },
-    { value: 'Prayer', label: 'Prayer & Communion', count: sermons.filter(s => s.category === 'Prayer').length }
+    { value: 'all', label: 'All Sermons', count: currentSermons.length },
+    { value: 'Purpose', label: 'Purpose & Calling', count: currentSermons.filter(s => s.category === 'Purpose').length },
+    { value: 'Faith', label: 'Faith & Trust', count: currentSermons.filter(s => s.category === 'Faith').length },
+    { value: 'Love', label: 'Love & Service', count: currentSermons.filter(s => s.category === 'Love').length },
+    { value: 'Victory', label: 'Victory & Strength', count: currentSermons.filter(s => s.category === 'Victory').length },
+    { value: 'Worship', label: 'Worship & Praise', count: currentSermons.filter(s => s.category === 'Worship').length },
+    { value: 'Family', label: 'Family & Marriage', count: currentSermons.filter(s => s.category === 'Family').length },
+    { value: 'Evangelism', label: 'Evangelism & Mission', count: currentSermons.filter(s => s.category === 'Evangelism').length },
+    { value: 'Prayer', label: 'Prayer & Communion', count: currentSermons.filter(s => s.category === 'Prayer').length }
   ];
 
-  const filteredSermons = sermons.filter(sermon => {
+  const filteredSermons = currentSermons.filter(sermon => {
     const matchesFilter = currentFilter === 'all' || sermon.category === currentFilter;
     const matchesSearch = sermon.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sermon.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sermon.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+                         (sermon.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (sermon.tags || []).some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
     return matchesFilter && matchesSearch;
   });
 
   const totalPages = Math.ceil(filteredSermons.length / sermonsPerPage);
-  const currentSermons = filteredSermons.slice(
+  const paginatedSermons = filteredSermons.slice(
     (currentPage - 1) * sermonsPerPage,
     currentPage * sermonsPerPage
   );
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Date not available';
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Invalid date';
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'long', 
@@ -217,123 +256,59 @@ export default function SermonsPage() {
     });
   };
 
-  const formatDuration = (duration: string) => {
-    const [minutes, seconds] = duration.split(':');
+  const formatDuration = (duration?: string) => {
+    if (!duration) return 'N/A';
+    const parts = duration.split(':');
+    if (parts.length !== 2) return duration; // Return as-is if not in expected format
+    const [minutes, seconds] = parts;
     return `${minutes}m ${seconds}s`;
+  };
+
+  const getYouTubeVideoId = (url: string) => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+    return match ? match[1] : null;
+  };
+
+  const getYouTubeThumbnail = (youtubeUrl?: string) => {
+    if (!youtubeUrl) return '/faith-1024x533.jpg'; // fallback image
+    const videoId = getYouTubeVideoId(youtubeUrl);
+    return videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : '/faith-1024x533.jpg';
+  };
+
+  const getSermonThumbnail = (sermon: Sermon) => {
+    // Use provided thumbnail first, then YouTube thumbnail, then fallback
+    return sermon.thumbnail || getYouTubeThumbnail(sermon.youtubeUrl) || '/faith-1024x533.jpg';
+  };
+
+  const handleWatchVideo = (sermon: Sermon) => {
+    const videoUrl = sermon.youtubeUrl || sermon.videoUrl;
+    if (videoUrl) {
+      window.open(videoUrl, '_blank');
+    } else {
+      alert('Video not available for this sermon.');
+    }
+  };
+
+  const handleDownloadAudio = (sermon: Sermon) => {
+    if (sermon.audioUrl) {
+      window.open(sermon.audioUrl, '_blank');
+    } else {
+      alert('Audio download not available for this sermon.');
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Enhanced Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        scrollY > 50 
-          ? 'bg-white/95 backdrop-blur-md shadow-lg py-2' 
-          : 'bg-white/90 backdrop-blur-md shadow-md py-4'
-      }`}>
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <img src="/logo-100X100.png" alt="CRM Logo" className="w-12 h-12 rounded-full shadow-lg" />
-            <div>
-              <h1 className="font-bold text-lg text-blue-900">
-                Christ Revolution Ministries
-              </h1>
-              <p className="text-xs text-blue-600">
-                Blessed to be a blessing
-              </p>
-            </div>
-          </div>
-          
-          {/* Desktop Menu */}
-          <ul className="hidden md:flex items-center space-x-8">
-            <li>
-              <a 
-                href="/" 
-                className="font-medium transition-all duration-300 hover:scale-105 text-gray-700 hover:text-blue-600"
-              >
-                Home
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/about" 
-                className="font-medium transition-all duration-300 hover:scale-105 text-gray-700 hover:text-blue-600"
-              >
-                About
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/ministries" 
-                className="font-medium transition-all duration-300 hover:scale-105 text-gray-700 hover:text-blue-600"
-              >
-                Ministries
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/sermons" 
-                className="font-medium transition-all duration-300 hover:scale-105 text-blue-600 border-b-2 border-blue-600"
-              >
-                Sermons
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/events" 
-                className="font-medium transition-all duration-300 hover:scale-105 text-gray-700 hover:text-blue-600"
-              >
-                Events
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/contact" 
-                className="font-medium transition-all duration-300 hover:scale-105 text-gray-700 hover:text-blue-600"
-              >
-                Contact
-              </a>
-            </li>
-            <li>
-              <a 
-                href="/give" 
-                className="px-4 py-2 bg-green-600 text-white font-medium rounded-full hover:bg-green-700 transition-all duration-300 hover:scale-105"
-              >
-                Give
-              </a>
-            </li>
-          </ul>
-
-          {/* Mobile Menu Button */}
-          <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors duration-200"
-          >
-            <div className="w-6 h-6 flex flex-col justify-center space-y-1">
-              <span className={`block h-0.5 bg-blue-800 transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-1' : ''}`}></span>
-              <span className={`block h-0.5 bg-blue-800 transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></span>
-              <span className={`block h-0.5 bg-blue-800 transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-1' : ''}`}></span>
-            </div>
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        <div className={`md:hidden bg-white shadow-xl transition-all duration-300 ${
-          isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-        } overflow-hidden`}>
-          <div className="px-6 py-4 space-y-4">
-            <a href="/" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>Home</a>
-            <a href="/about" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>About</a>
-            <a href="/ministries" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>Ministries</a>
-            <a href="/sermons" className="block text-blue-600 font-bold transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>Sermons</a>
-            <a href="/events" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>Events</a>
-            <a href="/contact" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>Contact</a>
-            <a href="/give" className="block text-green-600 font-bold transition-colors duration-200" onClick={() => setIsMenuOpen(false)}>Give</a>
-          </div>
-        </div>
-      </nav>
+      <NavigationBar currentPage="sermons" />
 
       {/* Hero Section */}
       <section className="relative h-96 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 pt-20">
+
+
+
+
+
+
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white px-6">
@@ -343,15 +318,15 @@ export default function SermonsPage() {
             </p>
             <div className="mt-8 flex flex-col md:flex-row gap-4 justify-center">
               <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3">
-                <div className="text-2xl font-bold">{sermons.length}</div>
+                <div className="text-2xl font-bold">{currentSermons.length}</div>
                 <div className="text-sm opacity-90">Total Sermons</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3">
-                <div className="text-2xl font-bold">{sermons.reduce((acc, s) => acc + s.views, 0)}</div>
+                <div className="text-2xl font-bold">{currentSermons.reduce((acc, s) => acc + (s.views || 0), 0)}</div>
                 <div className="text-sm opacity-90">Total Views</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3">
-                <div className="text-2xl font-bold">{sermons.reduce((acc, s) => acc + s.downloads, 0)}</div>
+                <div className="text-2xl font-bold">{currentSermons.reduce((acc, s) => acc + (s.downloads || 0), 0)}</div>
                 <div className="text-sm opacity-90">Downloads</div>
               </div>
             </div>
@@ -379,7 +354,7 @@ export default function SermonsPage() {
 
             {/* Results Count */}
             <div className="text-gray-600">
-              Showing {currentSermons.length} of {filteredSermons.length} sermons
+              Showing {paginatedSermons.length} of {filteredSermons.length} sermons
             </div>
           </div>
 
@@ -412,7 +387,7 @@ export default function SermonsPage() {
           <div className="mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-8">Featured Messages</h2>
             <div className="grid lg:grid-cols-2 gap-8">
-              {sermons.filter(sermon => sermon.featured).map((sermon) => (
+              {currentSermons.filter(sermon => sermon.featured === true).map((sermon) => (
                 <div 
                   key={sermon.id}
                   className="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden cursor-pointer"
@@ -420,7 +395,7 @@ export default function SermonsPage() {
                 >
                   <div className="relative">
                     <img 
-                      src={sermon.thumbnail} 
+                      src={addCacheVersion(getSermonThumbnail(sermon))} 
                       alt={sermon.title}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                     />
@@ -445,7 +420,7 @@ export default function SermonsPage() {
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-3">
                       <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
-                        {sermon.category}
+                        {sermon.category || 'General'}
                       </span>
                       <span className="text-gray-500 text-sm">{formatDate(sermon.date)}</span>
                     </div>
@@ -455,17 +430,17 @@ export default function SermonsPage() {
                     </h3>
                     
                     <p className="text-gray-600 text-sm mb-4">
-                      {sermon.description}
+                      {sermon.description || 'No description available.'}
                     </p>
                     
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-gray-900">{sermon.speaker}</p>
-                        <p className="text-blue-600 text-sm">{sermon.series}</p>
+                        <p className="font-medium text-gray-900">{sermon.speaker || 'Speaker not specified'}</p>
+                        <p className="text-blue-600 text-sm">{sermon.series || 'General'}</p>
                       </div>
                       <div className="text-right text-sm text-gray-500">
-                        <p>{sermon.views} views</p>
-                        <p>{sermon.downloads} downloads</p>
+                        <p>{sermon.views || 0} views</p>
+                        <p>{sermon.downloads || 0} downloads</p>
                       </div>
                     </div>
                   </div>
@@ -481,7 +456,7 @@ export default function SermonsPage() {
             {currentFilter === 'all' ? 'All Sermons' : `${categories.find(c => c.value === currentFilter)?.label} Sermons`}
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {currentSermons.map((sermon) => (
+            {paginatedSermons.map((sermon) => (
               <div 
                 key={sermon.id}
                 className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer group"
@@ -489,13 +464,15 @@ export default function SermonsPage() {
               >
                 <div className="relative">
                   <img 
-                    src={sermon.thumbnail} 
+                    src={addCacheVersion(getSermonThumbnail(sermon))} 
                     alt={sermon.title}
                     className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
-                    {formatDuration(sermon.duration)}
-                  </div>
+                  {sermon.duration && (
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                      {formatDuration(sermon.duration)}
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
                       <svg className="w-6 h-6 text-blue-600 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -508,7 +485,7 @@ export default function SermonsPage() {
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
-                      {sermon.category}
+                      {sermon.category || 'General'}
                     </span>
                     <span className="text-gray-500 text-xs">{formatDate(sermon.date)}</span>
                   </div>
@@ -518,12 +495,12 @@ export default function SermonsPage() {
                   </h3>
                   
                   <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {sermon.description}
+                    {sermon.description || 'No description available.'}
                   </p>
                   
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-blue-600 font-medium">{sermon.series}</span>
-                    <span className="text-gray-500">{sermon.views} views</span>
+                    <span className="text-blue-600 font-medium">{sermon.series || 'General'}</span>
+                    <span className="text-gray-500">{sermon.views || 0} views</span>
                   </div>
                 </div>
               </div>
@@ -594,7 +571,7 @@ export default function SermonsPage() {
           <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="relative">
               <img 
-                src={selectedSermon.thumbnail} 
+                src={addCacheVersion(getSermonThumbnail(selectedSermon))} 
                 alt={selectedSermon.title}
                 className="w-full h-64 object-cover rounded-t-3xl"
               />
@@ -625,45 +602,53 @@ export default function SermonsPage() {
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-4">Sermon Details</h3>
                   <div className="space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
-                      </svg>
-                      <div>
-                        <p className="font-medium">Speaker</p>
-                        <p className="text-gray-600">{selectedSermon.speaker}</p>
+                    {selectedSermon.speaker && (
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+                        </svg>
+                        <div>
+                          <p className="font-medium">Speaker</p>
+                          <p className="text-gray-600">{selectedSermon.speaker}</p>
+                        </div>
                       </div>
-                    </div>
+                    )}
                     
-                    <div className="flex items-center space-x-3">
-                      <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 5L8 11L18 1" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      <div>
-                        <p className="font-medium">Series</p>
-                        <p className="text-gray-600">{selectedSermon.series}</p>
+                    {selectedSermon.series && (
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M2 5L8 11L18 1" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        <div>
+                          <p className="font-medium">Series</p>
+                          <p className="text-gray-600">{selectedSermon.series}</p>
+                        </div>
                       </div>
-                    </div>
+                    )}
                     
-                    <div className="flex items-center space-x-3">
-                      <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
-                      </svg>
-                      <div>
-                        <p className="font-medium">Scripture</p>
-                        <p className="text-gray-600">{selectedSermon.scripture}</p>
+                    {selectedSermon.scripture && (
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="font-medium">Scripture</p>
+                          <p className="text-gray-600">{selectedSermon.scripture}</p>
+                        </div>
                       </div>
-                    </div>
+                    )}
                     
-                    <div className="flex items-center space-x-3">
-                      <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                      </svg>
-                      <div>
-                        <p className="font-medium">Duration</p>
-                        <p className="text-gray-600">{formatDuration(selectedSermon.duration)}</p>
+                    {selectedSermon.duration && (
+                      <div className="flex items-center space-x-3">
+                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <p className="font-medium">Duration</p>
+                          <p className="text-gray-600">{formatDuration(selectedSermon.duration)}</p>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
                 
@@ -672,20 +657,24 @@ export default function SermonsPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600">Views</span>
-                      <span className="font-bold text-blue-600">{selectedSermon.views.toLocaleString()}</span>
+                      <span className="font-bold text-blue-600">{(selectedSermon.views || 0).toLocaleString()}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-gray-600">Downloads</span>
-                      <span className="font-bold text-green-600">{selectedSermon.downloads.toLocaleString()}</span>
+                      <span className="font-bold text-green-600">{(selectedSermon.downloads || 0).toLocaleString()}</span>
                     </div>
                     <div>
                       <p className="text-gray-600 mb-2">Tags</p>
                       <div className="flex flex-wrap gap-2">
-                        {selectedSermon.tags.map((tag, index) => (
-                          <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm">
-                            {tag}
-                          </span>
-                        ))}
+                        {(selectedSermon.tags || []).length > 0 ? (
+                          selectedSermon.tags!.map((tag, index) => (
+                            <span key={index} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm">
+                              {tag}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-500 italic">No tags available</span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -694,17 +683,23 @@ export default function SermonsPage() {
               
               <div className="mb-8">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">About This Message</h3>
-                <p className="text-gray-700 leading-relaxed">{selectedSermon.description}</p>
+                <p className="text-gray-700 leading-relaxed">{selectedSermon.description || 'No description available.'}</p>
               </div>
               
               <div className="flex flex-col md:flex-row gap-4">
-                <button className="flex-1 px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center space-x-2">
+                <button 
+                  onClick={() => handleWatchVideo(selectedSermon)}
+                  className="flex-1 px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center space-x-2"
+                >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                   </svg>
                   <span>Watch Video</span>
                 </button>
-                <button className="px-8 py-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center justify-center space-x-2">
+                <button 
+                  onClick={() => handleDownloadAudio(selectedSermon)}
+                  className="px-8 py-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors duration-300 flex items-center justify-center space-x-2"
+                >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>

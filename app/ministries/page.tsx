@@ -1,97 +1,56 @@
 "use client";
 import { useState, useEffect } from 'react';
 import NavigationBar from '../components/NavigationBar';
+import { getMinistries } from '../lib/data-fetchers';
+import { addCacheVersion } from '../lib/cache-utils';
 
 interface Ministry {
+  id: number;
   title: string;
-  description: string;
-  fullDescription: string;
-  image: string;
+  desc: string;
+  img: string;
   icon: string;
-  activities: string[];
-  schedule: string;
-  age: string;
-  leader: string;
-  contact: string;
+  fullDescription?: string;
+  activities?: string[];
+  schedule?: string;
+  age?: string;
+  leader?: string;
+  contact?: string;
 }
-
-const ministries: Ministry[] = [
-  {
-    title: 'Youth Ministry',
-    description: 'Empowering the next generation through discipleship, evangelism, and transformative experiences.',
-    fullDescription: 'Our Youth Ministry is dedicated to nurturing young hearts and minds, providing them with the foundation they need to develop a lasting relationship with Christ. Through dynamic worship, engaging Bible studies, and community outreach, we create an environment where young people can grow spiritually, emotionally, and socially.',
-    image: '/youth-web-330x201.jpg',
-    icon: '👥',
-    activities: ['Weekly Youth Services', 'Bible Study Groups', 'Youth Camps', 'Community Outreach', 'Mentorship Programs'],
-    schedule: 'Saturdays 4:00 PM - 6:00 PM',
-    age: '13-25 years',
-    leader: 'Pastor John Mwesigwa',
-    contact: '+256-772-123456'
-  },
-  {
-    title: 'Evangelism Ministry',
-    description: 'Spreading the Gospel and reaching communities with the love and message of Christ.',
-    fullDescription: 'Our Evangelism Ministry is at the heart of our mission to take this generation back to God. We actively engage in street evangelism, door-to-door witnessing, crusades, and community outreach programs to share the Gospel with those who need to hear the good news of Jesus Christ.',
-    image: '/evangelism-web-330x290.jpg',
-    icon: '📖',
-    activities: ['Street Evangelism', 'Door-to-Door Witnessing', 'Community Crusades', 'Prison Ministry', 'Hospital Visits'],
-    schedule: 'Sundays 2:00 PM - 5:00 PM',
-    age: 'All Ages',
-    leader: 'Pastor Mary Nakato',
-    contact: '+256-772-234567'
-  },
-  {
-    title: 'Worship & Music Ministry',
-    description: 'Deep worship experiences that connect hearts to God through powerful music and praise.',
-    fullDescription: 'Our Worship & Music Ministry creates an atmosphere where believers can encounter God through powerful worship and praise. We believe that worship is not just about music, but about creating a space where God\'s presence can be felt and lives can be transformed.',
-    image: '/worship_deep-552x262.jpg',
-    icon: '🎵',
-    activities: ['Worship Team', 'Choir Ministry', 'Instrumental Training', 'Songwriting Workshops', 'Special Events'],
-    schedule: 'Wednesdays 6:00 PM - 8:00 PM',
-    age: 'All Ages',
-    leader: 'Pastor David Ssemwogerere',
-    contact: '+256-772-345678'
-  },
-  {
-    title: 'Hope & Restoration Ministry',
-    description: 'Bringing hope to the broken-hearted and restoration to those in need of healing.',
-    fullDescription: 'Our Hope & Restoration Ministry focuses on ministering to those who are hurting, broken, and in need of God\'s healing touch. We provide counseling, prayer support, and practical assistance to individuals and families facing difficult circumstances.',
-    image: '/hope-370x230.jpg',
-    icon: '✨',
-    activities: ['Counseling Services', 'Prayer Ministry', 'Support Groups', 'Family Restoration', 'Addiction Recovery'],
-    schedule: 'Tuesdays 7:00 PM - 9:00 PM',
-    age: 'All Ages',
-    leader: 'Pastor Grace Namutebi',
-    contact: '+256-772-456789'
-  },
-  {
-    title: 'Children\'s Ministry',
-    description: 'Building strong foundations in young hearts through age-appropriate biblical teaching and fun activities.',
-    fullDescription: 'Our Children\'s Ministry is designed to introduce children to Jesus Christ in a fun, engaging, and age-appropriate way. We believe that children are not just the church of tomorrow, but the church of today, and we invest in their spiritual development through creative teaching methods and activities.',
-    image: '/youth-web-330x201.jpg',
-    icon: '🧒',
-    activities: ['Sunday School', 'Children\'s Church', 'Bible Story Time', 'Craft Activities', 'Children\'s Choir'],
-    schedule: 'Sundays 9:00 AM - 11:00 AM',
-    age: '3-12 years',
-    leader: 'Teacher Sarah Nalubega',
-    contact: '+256-772-567890'
-  },
-  {
-    title: 'Women\'s Ministry',
-    description: 'Empowering women to discover their purpose and calling in Christ through fellowship and discipleship.',
-    fullDescription: 'Our Women\'s Ministry provides a safe space for women to grow in their faith, build meaningful relationships, and discover their God-given purpose. Through Bible studies, prayer meetings, and fellowship activities, we encourage women to become strong disciples of Christ.',
-    image: '/hope-370x230.jpg',
-    icon: '👩',
-    activities: ['Women\'s Bible Study', 'Prayer Meetings', 'Mentorship Programs', 'Community Service', 'Women\'s Conferences'],
-    schedule: 'Thursdays 6:00 PM - 8:00 PM',
-    age: 'Adult Women',
-    leader: 'Pastor Rebecca Namukwaya',
-    contact: '+256-772-678901'
-  }
-];
 
 export default function MinistriesPage() {
   const [selectedMinistry, setSelectedMinistry] = useState<Ministry | null>(null);
+  const [ministries, setMinistries] = useState<Ministry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMinistries = async () => {
+      try {
+        const data = await getMinistries();
+        setMinistries(data);
+      } catch (error) {
+        console.error('Error fetching ministries:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMinistries();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white text-gray-900 font-sans">
+        <NavigationBar currentPage="ministries" />
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-xl text-gray-600">Loading ministries...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
@@ -125,13 +84,13 @@ export default function MinistriesPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {ministries.map((ministry, index) => (
               <div 
-                key={ministry.title}
+                key={ministry.id}
                 className="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 cursor-pointer"
                 onClick={() => setSelectedMinistry(ministry)}
               >
                 <div className="relative overflow-hidden">
                   <img 
-                    src={ministry.image} 
+                    src={addCacheVersion(ministry.img)} 
                     alt={ministry.title} 
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
@@ -146,13 +105,13 @@ export default function MinistriesPage() {
                     {ministry.title}
                   </h3>
                   <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                    {ministry.description}
+                    {ministry.desc}
                   </p>
                   
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-500">
-                      <p className="font-medium">{ministry.schedule}</p>
-                      <p>{ministry.age}</p>
+                      {ministry.schedule && <p className="font-medium">{ministry.schedule}</p>}
+                      {ministry.age && <p>{ministry.age}</p>}
                     </div>
                     <button className="text-blue-600 font-medium text-sm hover:text-blue-800 transition-colors duration-200 flex items-center space-x-2">
                       <span>Learn More</span>
@@ -202,7 +161,7 @@ export default function MinistriesPage() {
           <div className="bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="relative">
               <img 
-                src={selectedMinistry.image} 
+                src={addCacheVersion(selectedMinistry.img)} 
                 alt={selectedMinistry.title} 
                 className="w-full h-64 object-cover"
               />
@@ -222,7 +181,7 @@ export default function MinistriesPage() {
                   </div>
                   <div>
                     <h2 className="text-3xl font-bold text-white">{selectedMinistry.title}</h2>
-                    <p className="text-blue-200">{selectedMinistry.leader}</p>
+                    {selectedMinistry.leader && <p className="text-blue-200">{selectedMinistry.leader}</p>}
                   </div>
                 </div>
               </div>
@@ -233,16 +192,16 @@ export default function MinistriesPage() {
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">About This Ministry</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    {selectedMinistry.fullDescription}
+                    {selectedMinistry.fullDescription || selectedMinistry.desc}
                   </p>
                   
                   <div className="bg-blue-50 p-6 rounded-2xl">
                     <h4 className="text-lg font-bold text-gray-900 mb-3">Schedule & Details</h4>
                     <div className="space-y-2 text-sm">
-                      <p><span className="font-medium text-gray-900">When:</span> {selectedMinistry.schedule}</p>
-                      <p><span className="font-medium text-gray-900">Age Group:</span> {selectedMinistry.age}</p>
-                      <p><span className="font-medium text-gray-900">Leader:</span> {selectedMinistry.leader}</p>
-                      <p><span className="font-medium text-gray-900">Contact:</span> {selectedMinistry.contact}</p>
+                      {selectedMinistry.schedule && <p><span className="font-medium text-gray-900">When:</span> {selectedMinistry.schedule}</p>}
+                      {selectedMinistry.age && <p><span className="font-medium text-gray-900">Age Group:</span> {selectedMinistry.age}</p>}
+                      {selectedMinistry.leader && <p><span className="font-medium text-gray-900">Leader:</span> {selectedMinistry.leader}</p>}
+                      {selectedMinistry.contact && <p><span className="font-medium text-gray-900">Contact:</span> {selectedMinistry.contact}</p>}
                     </div>
                   </div>
                 </div>
@@ -250,14 +209,18 @@ export default function MinistriesPage() {
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">Activities & Programs</h3>
                   <div className="space-y-3">
-                    {selectedMinistry.activities.map((activity, index) => (
-                      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-gray-700">{activity}</span>
-                      </div>
-                    ))}
+                    {selectedMinistry.activities && selectedMinistry.activities.length > 0 ? (
+                      selectedMinistry.activities.map((activity, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                          <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-gray-700">{activity}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 italic">Activities coming soon...</p>
+                    )}
                   </div>
                   
                   <div className="mt-8 flex flex-col gap-4">
@@ -267,12 +230,14 @@ export default function MinistriesPage() {
                     >
                       Join This Ministry
                     </a>
-                    <a 
-                      href={`tel:${selectedMinistry.contact}`} 
-                      className="w-full px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors duration-200 text-center"
-                    >
-                      Call Leader
-                    </a>
+                    {selectedMinistry.contact && (
+                      <a 
+                        href={`tel:${selectedMinistry.contact}`} 
+                        className="w-full px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors duration-200 text-center"
+                      >
+                        Call Leader
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>

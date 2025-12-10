@@ -1,175 +1,48 @@
 "use client";
 import { useState, useEffect } from 'react';
 import NavigationBar from '../components/NavigationBar';
+import { getEvents } from '../lib/data-fetchers';
+import { addCacheVersion } from '../lib/cache-utils';
 
 interface Event {
   id: number;
   title: string;
   date: string;
-  time: string;
-  endTime: string;
-  location: string;
-  category: string;
-  description: string;
-  image: string;
-  featured: boolean;
-  capacity: number | string;
-  registered: number;
-  price: string;
-  speakers: string[];
-  agenda: { time: string; activity: string; }[];
+  time?: string;
+  endTime?: string;
+  location?: string;
+  category?: string;
+  description?: string;
+  img?: string;
+  featured?: boolean;
+  capacity?: number | string;
+  registered?: number;
+  price?: string;
+  speakers?: string[];
+  agenda?: { time: string; activity: string; }[];
 }
 
 export default function EventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [currentView, setCurrentView] = useState('grid'); // 'grid' or 'calendar'
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const events = [
-    {
-      id: 1,
-      title: 'Annual Anniversary 2025',
-      date: '2025-09-15',
-      time: '9:00 AM',
-      endTime: '6:00 PM',
-      location: 'Bulaga, Nakabugo Zion Estate - Doctor\'s Drive',
-      category: 'Anniversary',
-      description: 'Join us for our Annual Anniversary celebration as we reflect on God\'s faithfulness and look forward to His continued blessings. A day filled with worship, testimonies, and fellowship.',
-      image: '/faith-1024x533.jpg',
-      featured: true,
-      capacity: 500,
-      registered: 287,
-      price: 'Free',
-      speakers: ['Pastor Samuel Isiko'],
-      agenda: [
-        { time: '9:00 AM', activity: 'Registration & Welcome' },
-        { time: '10:00 AM', activity: 'Opening Worship' },
-        { time: '11:00 AM', activity: 'Testimonies & Reflection' },
-        { time: '12:30 PM', activity: 'Fellowship Lunch' },
-        { time: '2:00 PM', activity: 'Anniversary Message' },
-        { time: '3:30 PM', activity: 'Vision for the Future' },
-        { time: '5:00 PM', activity: 'Closing Prayer & Blessing' }
-      ]
-    },
-    {
-      id: 2,
-      title: 'Christmas Extravaganza 2025',
-      date: '2025-12-16',
-      time: '4:00 PM',
-      endTime: '9:00 PM',
-      location: 'Bulaga, Nakabugo Zion Estate - Doctor\'s Drive',
-      category: 'Holiday',
-      description: 'A magical Christmas celebration for the whole family! Join us for an evening of music, drama, gifts, and the joy of celebrating Christ\'s birth together.',
-      image: '/hope-370x230.jpg',
-      featured: true,
-      capacity: 300,
-      registered: 156,
-      price: 'Free',
-      speakers: ['Pastor Samuel Isiko', 'Youth Ministry Team'],
-      agenda: [
-        { time: '4:00 PM', activity: 'Christmas Carol Welcome' },
-        { time: '4:30 PM', activity: 'Children\'s Christmas Play' },
-        { time: '5:30 PM', activity: 'Christmas Feast' },
-        { time: '6:30 PM', activity: 'Gift Distribution' },
-        { time: '7:30 PM', activity: 'Christmas Message' },
-        { time: '8:30 PM', activity: 'Community Carol Singing' }
-      ]
-    },
-    {
-      id: 3,
-      title: 'Love Campaign 2025',
-      date: '2025-12-24',
-      time: '10:00 AM',
-      endTime: '4:00 PM',
-      location: 'Community Outreach - Bulaga Area',
-      category: 'Outreach',
-      description: 'Our annual Love Campaign to bless 50+ families in our community with special Christmas gifts and the love of Christ. Join us in spreading hope and joy!',
-      image: '/evangelism-web-330x290.jpg',
-      featured: true,
-      capacity: 100,
-      registered: 67,
-      price: 'Volunteer',
-      speakers: ['Pastor Samuel Isiko', 'Outreach Team'],
-      agenda: [
-        { time: '10:00 AM', activity: 'Volunteer Briefing' },
-        { time: '10:30 AM', activity: 'Prayer & Blessing' },
-        { time: '11:00 AM', activity: 'Community Visits Begin' },
-        { time: '1:00 PM', activity: 'Lunch Break' },
-        { time: '2:00 PM', activity: 'Continue Distribution' },
-        { time: '3:30 PM', activity: 'Closing & Testimonies' }
-      ]
-    },
-    {
-      id: 4,
-      title: 'Youth Worship Night',
-      date: '2025-08-30',
-      time: '7:00 PM',
-      endTime: '9:30 PM',
-      location: 'Main Sanctuary',
-      category: 'Youth',
-      description: 'An powerful evening of worship designed specifically for our young people. Experience God in a fresh way through contemporary music and relevant teaching.',
-      image: '/youth-web-330x201.jpg',
-      featured: false,
-      capacity: 150,
-      registered: 89,
-      price: 'Free',
-      speakers: ['Youth Pastor', 'Worship Team'],
-      agenda: [
-        { time: '7:00 PM', activity: 'Welcome & Icebreakers' },
-        { time: '7:30 PM', activity: 'Contemporary Worship' },
-        { time: '8:15 PM', activity: 'Youth Message' },
-        { time: '8:45 PM', activity: 'Prayer & Ministry Time' },
-        { time: '9:15 PM', activity: 'Fellowship & Snacks' }
-      ]
-    },
-    {
-      id: 5,
-      title: 'Family Fun Day',
-      date: '2025-09-07',
-      time: '10:00 AM',
-      endTime: '4:00 PM',
-      location: 'Church Grounds',
-      category: 'Family',
-      description: 'A day of fun activities for the whole family! Games, food, fellowship, and building stronger family bonds in Christ.',
-      image: '/worship_deep-552x262.jpg',
-      featured: false,
-      capacity: 200,
-      registered: 134,
-      price: 'UGX 10,000 per family',
-      speakers: ['Family Ministry Team'],
-      agenda: [
-        { time: '10:00 AM', activity: 'Registration & Welcome' },
-        { time: '10:30 AM', activity: 'Family Games Begin' },
-        { time: '12:00 PM', activity: 'Family Lunch' },
-        { time: '1:30 PM', activity: 'Children\'s Activities' },
-        { time: '2:30 PM', activity: 'Parent Workshop' },
-        { time: '3:30 PM', activity: 'Closing Circle' }
-      ]
-    },
-    {
-      id: 6,
-      title: 'Prayer & Fasting Week',
-      date: '2025-09-21',
-      time: '6:00 AM',
-      endTime: '7:00 PM',
-      location: 'Multiple Locations',
-      category: 'Prayer',
-      description: 'Join us for a week of intensive prayer and fasting as we seek God\'s face for breakthrough and revival in our community and nation.',
-      image: '/deep-1536x800.jpg',
-      featured: false,
-      capacity: 'Unlimited',
-      registered: 178,
-      price: 'Free',
-      speakers: ['Pastor Samuel Isiko', 'Prayer Team Leaders'],
-      agenda: [
-        { time: '6:00 AM', activity: 'Morning Prayer (Mon-Fri)' },
-        { time: '12:00 PM', activity: 'Midday Prayer (Daily)' },
-        { time: '6:00 PM', activity: 'Evening Prayer (Daily)' },
-        { time: 'Saturday', activity: 'All-Day Prayer & Worship' },
-        { time: 'Sunday', activity: 'Breaking Fast Celebration' }
-      ]
-    }
-  ];
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const data = await getEvents();
+        setEvents(data);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const categories = [
     { value: 'all', label: 'All Events', icon: '📅' },
@@ -226,6 +99,18 @@ export default function EventsPage() {
       </section>
 
       <div className="max-w-7xl mx-auto px-6 py-16">
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading events...</p>
+          </div>
+        ) : events.length === 0 ? (
+          <div className="text-center py-12">
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">No Events Available</h3>
+            <p className="text-gray-600">Check back later for upcoming events and announcements.</p>
+          </div>
+        ) : (
+        <>
         {/* Filter and View Controls */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 space-y-6 lg:space-y-0">
           {/* Category Filters */}
@@ -285,7 +170,7 @@ export default function EventsPage() {
                 >
                   <div className="relative overflow-hidden">
                     <img 
-                      src={event.image} 
+                      src={event.img ? addCacheVersion(event.img) : '/api/placeholder/400/250'} 
                       alt={event.title}
                       className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -325,14 +210,14 @@ export default function EventsPage() {
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
                         </svg>
-                        <span>{formatDate(event.date)} at {event.time}</span>
+                        <span>{formatDate(event.date)}{event.time ? ` at ${event.time}` : ''}</span>
                       </div>
                       
                       <div className="flex items-center space-x-2">
                         <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                         </svg>
-                        <span>{event.location}</span>
+                        <span>{event.location || 'Location TBD'}</span>
                       </div>
                       
                       {typeof event.capacity === 'number' && (
@@ -371,7 +256,7 @@ export default function EventsPage() {
                 >
                   <div className="relative">
                     <img 
-                      src={event.image} 
+                      src={event.img ? addCacheVersion(event.img) : '/api/placeholder/400/250'} 
                       alt={event.title}
                       className="w-full h-40 object-cover"
                     />
@@ -394,8 +279,8 @@ export default function EventsPage() {
                     
                     <div className="text-sm text-gray-500 space-y-1">
                       <div>{formatDate(event.date)}</div>
-                      <div>{event.time} - {event.endTime}</div>
-                      <div className="text-xs">{event.location}</div>
+                      <div>{event.time || 'TBD'} - {event.endTime || ''}</div>
+                      <div className="text-xs">{event.location || 'Location TBD'}</div>
                     </div>
                     
                     <button className="w-full mt-3 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors duration-200">
@@ -426,6 +311,8 @@ export default function EventsPage() {
             </button>
           </div>
         </div>
+        </>
+        )}
       </div>
 
       {/* Event Detail Modal */}
@@ -434,7 +321,7 @@ export default function EventsPage() {
           <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="relative">
               <img 
-                src={selectedEvent.image} 
+                src={selectedEvent.img ? addCacheVersion(selectedEvent.img) : '/api/placeholder/400/250'} 
                 alt={selectedEvent.title}
                 className="w-full h-64 object-cover rounded-t-3xl"
               />
@@ -451,9 +338,9 @@ export default function EventsPage() {
             <div className="p-8">
               <div className="flex items-center justify-between mb-4">
                 <span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full font-medium">
-                  {selectedEvent.category}
+                  {selectedEvent.category || 'Event'}
                 </span>
-                <span className="text-2xl font-bold text-green-600">{selectedEvent.price}</span>
+                <span className="text-2xl font-bold text-green-600">{selectedEvent.price || 'Free'}</span>
               </div>
               
               <h2 className="text-3xl font-bold text-gray-900 mb-4">{selectedEvent.title}</h2>
@@ -468,7 +355,7 @@ export default function EventsPage() {
                       </svg>
                       <div>
                         <p className="font-medium">{formatDate(selectedEvent.date)}</p>
-                        <p className="text-gray-600">{selectedEvent.time} - {selectedEvent.endTime}</p>
+                        <p className="text-gray-600">{selectedEvent.time || 'TBD'} - {selectedEvent.endTime || ''}</p>
                       </div>
                     </div>
                     
@@ -476,16 +363,16 @@ export default function EventsPage() {
                       <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                       </svg>
-                      <p className="text-gray-700">{selectedEvent.location}</p>
+                      <p className="text-gray-700">{selectedEvent.location || 'Location TBD'}</p>
                     </div>
                     
-                    {typeof selectedEvent.capacity === 'number' && (
+                    {selectedEvent.capacity && selectedEvent.registered && (
                       <div className="flex items-start space-x-3">
                         <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                           <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
                         </svg>
                         <div>
-                          <p className="font-medium">{selectedEvent.registered}/{selectedEvent.capacity} Registered</p>
+                          <p className="font-medium">{selectedEvent.registered || 0}/{selectedEvent.capacity} Registered</p>
                           <div className="w-32 bg-gray-200 rounded-full h-2 mt-1">
                             <div 
                               className="bg-blue-600 h-2 rounded-full" 
@@ -502,7 +389,7 @@ export default function EventsPage() {
                       </svg>
                       <div>
                         <p className="font-medium">Speakers</p>
-                        <p className="text-gray-600">{selectedEvent.speakers.join(', ')}</p>
+                        <p className="text-gray-600">{selectedEvent.speakers?.join(', ') || 'TBD'}</p>
                       </div>
                     </div>
                   </div>
@@ -511,7 +398,7 @@ export default function EventsPage() {
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-4">Event Agenda</h3>
                   <div className="space-y-3">
-                    {selectedEvent.agenda.map((item, index) => (
+                    {selectedEvent.agenda?.map((item, index) => (
                       <div key={index} className="flex space-x-3">
                         <div className="flex-shrink-0 w-16 text-sm font-medium text-blue-600">
                           {item.time}
@@ -525,7 +412,7 @@ export default function EventsPage() {
               
               <div className="mb-8">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">About This Event</h3>
-                <p className="text-gray-700 leading-relaxed">{selectedEvent.description}</p>
+                <p className="text-gray-700 leading-relaxed">{selectedEvent.description || 'Event details coming soon...'}</p>
               </div>
               
               <div className="flex flex-col md:flex-row gap-4">

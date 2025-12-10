@@ -2,7 +2,7 @@ const crypto = require('crypto');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: 'export', // Commented out to enable admin API routes
+  // Remove output: 'export' to enable API routes
   trailingSlash: true,
   productionBrowserSourceMaps: false, // Disable source maps in production
   poweredByHeader: false, // Remove X-Powered-By header
@@ -14,12 +14,11 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: false, // Enable optimization for server mode
-    domains: ['christrevolutionministries.org', 'img.youtube.com'], // Allow YouTube thumbnails
+    unoptimized: false, // Enable image optimization for server mode
+    domains: ['christrevolutionministries.org'], // Restrict image domains
     deviceSizes: [640, 750, 828, 1080, 1200], // Optimize image sizes
     imageSizes: [16, 32, 48, 64, 96], // Optimize image sizes
   },
-  assetPrefix: process.env.NODE_ENV === 'production' ? 'https://christrevolutionministries.org' : '',
   // Use hash-based build ID for better security and caching
   generateBuildId: async () => {
     const date = new Date();
