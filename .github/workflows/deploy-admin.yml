@@ -39,8 +39,8 @@ jobs:
         echo "🏗️ Building admin server..."
         echo "Environment: ${{ env.DEPLOY_ENV }}"
         
-        # Use admin-specific config (full server build, no static export)
-        npm run build:admin
+        # Use admin server build (no static export, no route removal)
+        npm run build:admin-server
         
         # Verify build
         if [ -d ".next" ]; then
