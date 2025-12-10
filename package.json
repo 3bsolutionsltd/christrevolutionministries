@@ -7,7 +7,7 @@
     "dev:admin": "cross-env NEXT_CONFIG=admin next dev",
     "build": "next build",
     "build:admin": "node scripts/generate-static-data.js && cross-env NODE_ENV=production NEXT_CONFIG=admin next build",
-    "build:admin-server": "cross-env NODE_ENV=production ADMIN_MODE=true NEXT_CONFIG=admin next build",
+    "build:admin-server": "cross-env NODE_ENV=production ADMIN_MODE=true NEXT_CONFIG=admin next build && cross-env NODE_ENV=production ADMIN_MODE=true NEXT_CONFIG=admin next export",
     "build:staging": "node scripts/prepare-static-build.js && node scripts/generate-static-data.js && cross-env NODE_ENV=production NEXT_PUBLIC_ENVIRONMENT=staging next build && node scripts/restore-api-routes.js",
     "build:production": "node scripts/prepare-static-build.js && node scripts/generate-static-data.js && cross-env NODE_ENV=production NEXT_PUBLIC_ENVIRONMENT=production next build && node scripts/restore-api-routes.js",
     "start": "next start",

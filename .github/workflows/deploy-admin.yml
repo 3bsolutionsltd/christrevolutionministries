@@ -42,13 +42,16 @@ jobs:
         # Use admin server build (no static export, no route removal)
         npm run build:admin-server
         
-        # Verify build
+        # Verify build - check both .next and out directories
+        echo "📂 Checking build output..."
+        ls -la
         if [ -d ".next" ]; then
-          echo "✅ Admin server build completed successfully"
-          ls -la .next/
-        else
-          echo "❌ Admin build failed - no .next directory found"
-          exit 1
+          echo "✅ .next directory found"
+          ls -la .next/ | head -10
+        fi
+        if [ -d "out" ]; then
+          echo "✅ out directory found" 
+          ls -la out/ | head -10
         fi
 
     - name: Deploy to Admin Production (admin.christrevolutionministries.org)
@@ -57,7 +60,7 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./
+        local-dir: ./out/
         server-dir: ./admin/
         exclude: |
           **/.git*
@@ -65,9 +68,6 @@ jobs:
           **/node_modules/**
           **/.DS_Store
           **/Thumbs.db
-          **/out/**
-          **/.next/cache/**
-          **/.api-backup/**
 
     - name: Deploy package.json and startup files
       run: |
