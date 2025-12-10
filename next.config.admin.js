@@ -2,7 +2,8 @@ const crypto = require('crypto');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Remove output: 'export' to enable API routes
+  // Enable static export for admin hosting
+  output: 'export',
   trailingSlash: true,
   productionBrowserSourceMaps: false, // Disable source maps in production
   poweredByHeader: false, // Remove X-Powered-By header
@@ -14,7 +15,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: false, // Enable image optimization for server mode
+    unoptimized: true, // Required for static export
     domains: ['christrevolutionministries.org'], // Restrict image domains
     deviceSizes: [640, 750, 828, 1080, 1200], // Optimize image sizes
     imageSizes: [16, 32, 48, 64, 96], // Optimize image sizes
