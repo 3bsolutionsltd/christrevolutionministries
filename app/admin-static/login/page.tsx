@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useStaticContentManager } from '../../lib/static-content-manager';
+import { useStaticContentManager } from '../../../lib/static-content-manager';
 
 export default function StaticAdminLogin() {
   const [token, setToken] = useState('');
