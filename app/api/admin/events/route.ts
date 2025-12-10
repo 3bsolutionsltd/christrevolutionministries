@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
 import { getEvents, saveEvents } from '../data-manager';
 
-export const dynamic = 'force-static';
-export const revalidate = false;
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
