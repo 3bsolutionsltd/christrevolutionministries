@@ -16,9 +16,13 @@ export default function AdminLogin() {
     try {
       console.log('Attempting login with:', { username: credentials.username, hasPassword: !!credentials.password });
       
-      // Check current protocol and warn if on HTTPS
-      if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
-        setError('Please access the admin via HTTP: http://localhost:3000/admin/login');
+      // Check if we're in development environment on localhost
+      const isLocalDev = typeof window !== 'undefined' && 
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      
+      // Only show localhost warning in development
+      if (isLocalDev && typeof window !== 'undefined' && window.location.protocol === 'https:') {
+        setError('Development Notice: Please access the admin panel via HTTP: http://localhost:3000/admin/login');
         setLoading(false);
         return;
       }
@@ -69,8 +73,10 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        {/* Development Notice */}
-        {typeof window !== 'undefined' && window.location.protocol === 'https:' && (
+        {/* Development Notice - Only show for localhost */}
+        {typeof window !== 'undefined' && 
+         (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+         window.location.protocol === 'https:' && (
           <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
             <p className="text-sm">
               <strong>Development Notice:</strong> Please access the admin panel via HTTP: 
