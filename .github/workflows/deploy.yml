@@ -54,17 +54,15 @@ jobs:
         echo "Building for staging environment..."
         echo "NODE_ENV=$NODE_ENV"
         echo "NEXT_PUBLIC_ENVIRONMENT=$NEXT_PUBLIC_ENVIRONMENT"
-        echo "Checking package.json..."
-        cat package.json | grep -A 10 '"scripts"'
-        echo "Running build with error output..."
-        npm run build || (echo "Build failed, checking for errors..." && npm run lint && exit 1)
+        echo "Running staging build..."
+        npm run build:staging || (echo "Build failed, checking for errors..." && npm run lint && exit 1)
         echo "Build completed, checking output..."
         ls -la
         if [ -d "out" ]; then
-          echo "✅ Out directory created!"
+          echo "✅ Staging static export completed successfully!"
           ls -la out/
         else
-          echo "❌ No out directory found"
+          echo "❌ Staging static export failed - no out directory found"
           exit 1
         fi
       
@@ -77,7 +75,16 @@ jobs:
         echo "Building for production environment..."
         echo "NODE_ENV=$NODE_ENV"
         echo "NEXT_PUBLIC_ENVIRONMENT=$NEXT_PUBLIC_ENVIRONMENT"
-        npm run build || (echo "Build failed, checking for errors..." && npm run lint && exit 1)
+        npm run build:production || (echo "Build failed, checking for errors..." && npm run lint && exit 1)
+        echo "Build completed, checking output..."
+        ls -la
+        if [ -d "out" ]; then
+          echo "✅ Static export completed successfully!"
+          ls -la out/
+        else
+          echo "❌ Static export failed - no out directory found"
+          exit 1
+        fi
         echo "Build completed, checking output..."
         ls -la
         if [ -d "out" ]; then

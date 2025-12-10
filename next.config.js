@@ -2,8 +2,8 @@ const crypto = require('crypto');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Only enable static export for production environment (not staging)
-  ...(process.env.NEXT_PUBLIC_ENVIRONMENT === 'production' ? { output: 'export' } : {}),
+  // Enable static export for both staging and production deployments
+  ...(process.env.NODE_ENV === 'production' ? { output: 'export' } : {}),
   trailingSlash: true,
   productionBrowserSourceMaps: false, // Disable source maps in production
   poweredByHeader: false, // Remove X-Powered-By header
@@ -15,10 +15,8 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: process.env.NEXT_PUBLIC_ENVIRONMENT === 'production',
+    unoptimized: process.env.NODE_ENV === 'production',
     domains: ['christrevolutionministries.org', 'img.youtube.com'], // Allow YouTube thumbnails
-    deviceSizes: [640, 750, 828, 1080, 1200],
-    imageSizes: [16, 32, 48, 64, 96],
   },
   assetPrefix: process.env.NODE_ENV === 'production' ? 'https://christrevolutionministries.org' : '',
   // Use hash-based build ID for better security and caching
