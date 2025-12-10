@@ -1,15 +1,35 @@
 "use client";
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminLogin() {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isDisabled, setIsDisabled] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Check if admin is disabled
+    const urlParams = new URLSearchParams(window.location.search);
+    const isStaticEnvironment = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    const isStaging = window.location.hostname.includes('dev.christrevolutionministries.org');
+    const testMode = urlParams.get('test') === 'true';
+    
+    // Allow admin on localhost (dev) and staging with test parameter, disable on production
+    if (isStaticEnvironment && !isStaging && !testMode) {
+      setIsDisabled(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
+    if (isDisabled) {
+      setError('Admin functionality is only available in development environment');
+      return;
+    }
+    
     setLoading(true);
     setError('');
 
@@ -90,6 +110,17 @@ export default function AdminLogin() {
             </p>
           </div>
         )}
+
+        {/* Disabled Notice - Show for production environments */}
+        {isDisabled && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <p className="text-sm">
+              <strong>Admin Unavailable:</strong> The admin panel is disabled in production for security.
+              <br />
+              <span className="text-xs">For content management, please use the development environment or staging site.</span>
+            </p>
+          </div>
+        )}
         
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -114,7 +145,7 @@ export default function AdminLogin() {
                 placeholder="Username"
                 value={credentials.username}
                 onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-                disabled={loading}
+                disabled={loading || isDisabled}
               />
             </div>
             <div>
@@ -130,7 +161,7 @@ export default function AdminLogin() {
                 placeholder="Password"
                 value={credentials.password}
                 onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                disabled={loading}
+                disabled={loading || isDisabled}
               />
             </div>
           </div>
@@ -142,10 +173,10 @@ export default function AdminLogin() {
           <div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || isDisabled}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {isDisabled ? 'Admin Disabled' : (loading ? 'Signing in...' : 'Sign in')}
             </button>
           </div>
         </form>

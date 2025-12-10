@@ -19,6 +19,19 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
   const checkAuth = async () => {
     try {
+      // Check if we're in a static environment (production only - allow staging)
+      const isStaticEnvironment = typeof window !== 'undefined' && 
+        (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1');
+      const isStaging = typeof window !== 'undefined' && 
+        window.location.hostname.includes('dev.christrevolutionministries.org');
+      
+      if (isStaticEnvironment && !isStaging) {
+        // Admin functionality is disabled in production static deployments
+        console.log('Admin functionality disabled in production environment');
+        router.push('/admin/login?disabled=true');
+        return;
+      }
+      
       // Get session ID from localStorage
       const sessionId = typeof window !== 'undefined' ? localStorage.getItem('admin-session') : null;
       
@@ -145,6 +158,12 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                   className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
                 >
                   📐 Image Guide
+                </Link>
+                <Link
+                  href="/admin/publish"
+                  className="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm"
+                >
+                  🚀 Publish
                 </Link>
               </div>
             </div>

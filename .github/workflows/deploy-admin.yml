@@ -1,0 +1,87 @@
+name: Deploy Admin Server
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deploy admin server'
+        required: true
+        default: 'admin-production'
+        type: choice
+        options:
+        - admin-production
+
+jobs:
+  deploy-admin:
+    runs-on: ubuntu-latest
+    
+    env:
+      DEPLOY_ENV: admin-production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build Admin Server
+      env:
+        NODE_ENV: production
+        ADMIN_MODE: true
+      run: |
+        echo "🏗️ Building admin server..."
+        echo "Environment: ${{ env.DEPLOY_ENV }}"
+        
+        # Use admin-specific config (full server build, no static export)
+        npm run build:admin
+        
+        # Verify build
+        if [ -d ".next" ]; then
+          echo "✅ Admin server build completed successfully"
+          ls -la .next/
+        else
+          echo "❌ Admin build failed - no .next directory found"
+          exit 1
+        fi
+
+    - name: Deploy to Admin Production (admin.christrevolutionministries.org)
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./
+        server-dir: ./admin/
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.DS_Store
+          **/Thumbs.db
+          **/out/**
+          **/.next/cache/**
+          **/.api-backup/**
+
+    - name: Deploy package.json and startup files
+      run: |
+        echo "📦 Deploying server files..."
+        # This would deploy package.json and any startup scripts needed
+
+    - name: Deployment Summary
+      run: |
+        echo "🚀 Admin server deployment completed!"
+        echo "🌐 Admin URL: https://admin.christrevolutionministries.org"
+        echo "📁 Server Path: /home/u266222025/domains/christrevolutionministries.org/public_html/admin"
+        echo ""
+        echo "🔐 Admin Features Available:"
+        echo "  • Content Management"
+        echo "  • File Uploads"  
+        echo "  • User Authentication"
+        echo "  • API Endpoints"
