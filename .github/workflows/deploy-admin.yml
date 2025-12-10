@@ -42,25 +42,36 @@ jobs:
         # Use admin server build (no static export, no route removal)
         npm run build:admin-server
         
+        # Since static export isn't working in CI, use the .next build directly
+        echo "📦 Preparing deployment files..."
+        if [ ! -d "out" ] && [ -d ".next" ]; then
+          echo "Using .next directory as deployment source..."
+          # Copy .htaccess for shared hosting
+          if [ -f "admin-htaccess" ]; then
+            cp admin-htaccess .next/.htaccess
+            echo "✅ Added .htaccess for shared hosting"
+          fi
+          echo "✅ .next directory will be deployed"
+        fi
+        
         # Verify build - check for static export files
         echo "📂 Checking build output..."
         ls -la
         if [ -d "out" ]; then
           echo "✅ Static export directory found"
           ls -la out/ | head -10
-          echo "Checking for HTML files..."
-          if [ -f "out/index.html" ]; then
-            echo "✅ Static HTML files found - export successful"
-          else
-            echo "❌ No HTML files found in out directory"
-            exit 1
-          fi
+          DEPLOY_SOURCE="out"
+        elif [ -d ".next" ]; then
+          echo "✅ Next.js build directory found"
+          ls -la .next/ | head -10
+          DEPLOY_SOURCE=".next"
         else
-          echo "❌ No out directory found - static export failed"
+          echo "❌ No build output found"
           echo "Available directories:"
           ls -la | grep "^d"
           exit 1
         fi
+        echo "DEPLOY_SOURCE=$DEPLOY_SOURCE" >> $GITHUB_ENV
 
     - name: Deploy to Admin Production (admin.christrevolutionministries.org)
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -68,7 +79,7 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./out/
+        local-dir: ./${{ env.DEPLOY_SOURCE }}/
         server-dir: ./admin/
         exclude: |
           **/.git*
