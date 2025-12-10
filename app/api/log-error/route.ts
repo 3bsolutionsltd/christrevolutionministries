@@ -3,6 +3,9 @@ import { writeFile, appendFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
 
+export const dynamic = 'force-static';
+export const revalidate = false;
+
 interface ErrorLog {
   message: string;
   stack?: string;

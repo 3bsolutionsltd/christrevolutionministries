@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { createSession } from '../../../session-store';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,21 +17,16 @@ export async function POST(request: NextRequest) {
     console.log('Login attempt:', { username, hasPassword: !!password });
 
     if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-      // Create a simple session token (in production, use JWT or proper session management)
-      const sessionToken = Buffer.from(`${username}:${Date.now()}`).toString('base64');
+      // Create a session using our simple session store
+      const sessionId = createSession(username);
       
-      const response = NextResponse.json({ success: true, message: 'Login successful' });
+      console.log('Login successful - Session created:', sessionId);
       
-      // Set cookie directly on response
-      response.cookies.set('admin-session', sessionToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 24, // 24 hours
-        path: '/'
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Login successful',
+        sessionId: sessionId
       });
-
-      return response;
     } else {
       return NextResponse.json(
         { success: false, message: 'Invalid credentials' },

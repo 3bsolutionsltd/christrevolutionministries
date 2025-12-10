@@ -2,8 +2,8 @@ const crypto = require('crypto');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static export for both staging and production deployments
-  ...(process.env.NODE_ENV === 'production' ? { output: 'export' } : {}),
+  // Enable static export for both staging and production deployments, but not for admin builds
+  ...(process.env.NODE_ENV === 'production' && process.env.NEXT_CONFIG !== 'admin' ? { output: 'export' } : {}),
   trailingSlash: true,
   productionBrowserSourceMaps: false, // Disable source maps in production
   poweredByHeader: false, // Remove X-Powered-By header
@@ -18,7 +18,7 @@ const nextConfig = {
     unoptimized: process.env.NODE_ENV === 'production',
     domains: ['christrevolutionministries.org', 'img.youtube.com'], // Allow YouTube thumbnails
   },
-  assetPrefix: process.env.NODE_ENV === 'production' ? 'https://christrevolutionministries.org' : '',
+  assetPrefix: process.env.NEXT_PUBLIC_ENVIRONMENT === 'production' ? 'https://christrevolutionministries.org' : '',
   // Use hash-based build ID for better security and caching
   generateBuildId: async () => {
     const date = new Date();

@@ -50,6 +50,10 @@ export default function AdminLogin() {
       console.log('Response data:', data);
 
       if (data.success) {
+        // Store session ID in localStorage
+        if (data.sessionId && typeof window !== 'undefined') {
+          localStorage.setItem('admin-session', data.sessionId);
+        }
         router.push('/admin');
       } else {
         setError(data.message || 'Login failed');

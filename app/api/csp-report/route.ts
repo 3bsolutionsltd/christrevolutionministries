@@ -2,6 +2,9 @@ import { NextRequest } from 'next/server'
 import fs from 'fs'
 import path from 'path'
 
+export const dynamic = 'force-static';
+export const revalidate = false;
+
 export async function POST(req: NextRequest) {
   try {
     const report = await req.json()

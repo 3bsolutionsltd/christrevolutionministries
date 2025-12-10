@@ -1,25 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { validateSession } from '../../../session-store';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = request.cookies.get('admin-session');
-
-    if (session && session.value) {
+    // Get session ID from Authorization header
+    const authHeader = request.headers.get('authorization');
+    const sessionId = authHeader?.replace('Bearer ', '');
+    
+    console.log('Auth check - Session ID received:', sessionId ? 'yes' : 'no');
+    
+    if (sessionId && validateSession(sessionId)) {
+      console.log('Auth check - Valid session');
       return NextResponse.json({ 
         success: true, 
         authenticated: true,
         message: 'User is authenticated' 
       });
-    } else {
-      return NextResponse.json({ 
-        success: true, 
-        authenticated: false,
-        message: 'User is not authenticated' 
-      });
     }
+    
+    console.log('Auth check - Invalid or missing session');
+    return NextResponse.json({ 
+      success: true, 
+      authenticated: false,
+      message: 'User is not authenticated' 
+    });
   } catch (error) {
     console.error('Auth check error:', error);
     return NextResponse.json(

@@ -19,7 +19,7 @@ try {
     if (fs.existsSync(adminDir)) {
       fs.rmSync(adminDir, { recursive: true });
     }
-    fs.renameSync(adminBackup, adminDir);
+    fs.cpSync(adminBackup, adminDir, { recursive: true });
     console.log('✅ Restored admin API routes');
   }
 
@@ -30,7 +30,7 @@ try {
     if (fs.existsSync(authDir)) {
       fs.rmSync(authDir, { recursive: true });
     }
-    fs.renameSync(authBackup, authDir);
+    fs.cpSync(authBackup, authDir, { recursive: true });
     console.log('✅ Restored auth API routes');
   }
 

@@ -19,8 +19,17 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
   const checkAuth = async () => {
     try {
+      // Get session ID from localStorage
+      const sessionId = typeof window !== 'undefined' ? localStorage.getItem('admin-session') : null;
+      
+      const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      if (sessionId) {
+        headers['Authorization'] = `Bearer ${sessionId}`;
+      }
+      
       const response = await fetch('/api/auth/check', {
-        credentials: 'include'
+        credentials: 'include',
+        headers
       });
       const data = await response.json();
       
@@ -43,6 +52,12 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         method: 'POST',
         credentials: 'include'
       });
+      
+      // Clear localStorage session
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('admin-session');
+      }
+      
       router.push('/admin/login');
     } catch (error) {
       console.error('Logout failed:', error);

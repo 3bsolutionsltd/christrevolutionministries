@@ -3,7 +3,7 @@ const path = require('path');
 
 /**
  * Prepare for Static Build
- * Temporarily rename API routes to prevent static export conflicts
+ * Temporarily move API routes to prevent static export conflicts
  */
 
 console.log('🔧 Preparing for static build...');
@@ -11,8 +11,6 @@ console.log('🔧 Preparing for static build...');
 const apiDir = path.join(process.cwd(), 'app', 'api');
 const adminDir = path.join(apiDir, 'admin');
 const authDir = path.join(apiDir, 'auth');
-
-// Create backup directory
 const backupDir = path.join(process.cwd(), '.api-backup');
 
 try {
@@ -27,7 +25,9 @@ try {
     if (fs.existsSync(adminBackup)) {
       fs.rmSync(adminBackup, { recursive: true });
     }
-    fs.renameSync(adminDir, adminBackup);
+    // Copy first, then remove original
+    fs.cpSync(adminDir, adminBackup, { recursive: true });
+    fs.rmSync(adminDir, { recursive: true });
     console.log('✅ Moved admin API routes to backup');
   }
 
@@ -37,12 +37,15 @@ try {
     if (fs.existsSync(authBackup)) {
       fs.rmSync(authBackup, { recursive: true });
     }
-    fs.renameSync(authDir, authBackup);
+    // Copy first, then remove original
+    fs.cpSync(authDir, authBackup, { recursive: true });
+    fs.rmSync(authDir, { recursive: true });
     console.log('✅ Moved auth API routes to backup');
   }
 
   console.log('🎯 Ready for static build');
 } catch (error) {
   console.error('❌ Error preparing for build:', error.message);
-  process.exit(1);
+  // Don't exit on error - continue with build
+  console.log('⚠️ Continuing with build anyway...');
 }
