@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
-import { getHeroSlides, saveHeroSlides } from '../settings-manager';
-
-export const dynamic = 'force-dynamic';
+import { getHeroSlides, saveHeroSlides } from '../data-manager';
 
 export async function GET() {
   try {

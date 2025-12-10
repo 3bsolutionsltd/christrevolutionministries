@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
 import { getSermons, saveSermons } from '../data-manager';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-static';
+export const revalidate = false;
 
 export async function GET() {
   try {

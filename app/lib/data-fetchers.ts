@@ -2,31 +2,12 @@
 // Supports both development (admin API) and production (static files) modes
 export async function getMinistries() {
   try {
-    // Check if we're in development mode with admin API available
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    
-    if (isDevelopment) {
-      // Development: Use admin API routes
-      const response = await fetch('/api/admin/ministries', {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
-      const data = await response.json();
-      if (data.success) {
-        return data.data;
-      }
-    } else {
-      // Production: Use static API files
-      const response = await fetch('/api/ministries.json', {
-        cache: 'no-store'
-      });
-      if (response.ok) {
-        return await response.json();
-      }
+    // Use static JSON files for production compatibility
+    const response = await fetch('/api/ministries.json', {
+      cache: 'no-store'
+    });
+    if (response.ok) {
+      return await response.json();
     }
     return [];
   } catch (error) {
@@ -37,30 +18,12 @@ export async function getMinistries() {
 
 export async function getEvents() {
   try {
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    
-    if (isDevelopment) {
-      // Development: Use admin API routes
-      const response = await fetch('/api/admin/events', {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
-      const data = await response.json();
-      if (data.success) {
-        return data.data;
-      }
-    } else {
-      // Production: Use static API files
-      const response = await fetch('/api/events.json', {
-        cache: 'no-store'
-      });
-      if (response.ok) {
-        return await response.json();
-      }
+    // Use static JSON files for production compatibility
+    const response = await fetch('/api/events.json', {
+      cache: 'no-store'
+    });
+    if (response.ok) {
+      return await response.json();
     }
     return [];
   } catch (error) {
@@ -71,30 +34,12 @@ export async function getEvents() {
 
 export async function getSermons() {
   try {
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    
-    if (isDevelopment) {
-      // Development: Use admin API routes
-      const response = await fetch('/api/admin/sermons', {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
-      const data = await response.json();
-      if (data.success) {
-        return data.data;
-      }
-    } else {
-      // Production: Use static API files
-      const response = await fetch('/api/sermons.json', {
-        cache: 'no-store'
-      });
-      if (response.ok) {
-        return await response.json();
-      }
+    // Use static JSON files for production compatibility
+    const response = await fetch('/api/sermons.json', {
+      cache: 'no-store'
+    });
+    if (response.ok) {
+      return await response.json();
     }
     return [];
   } catch (error) {

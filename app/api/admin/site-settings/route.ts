@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
-import { getSiteSettings, saveSiteSettings } from '../settings-manager';
-
-export const dynamic = 'force-dynamic';
+import { getSiteSettings, saveSiteSettings } from '../data-manager';
 
 export async function GET() {
   try {
