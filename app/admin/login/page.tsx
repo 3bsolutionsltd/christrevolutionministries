@@ -1,20 +1,29 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useStaticContentManager } from '../../../lib/static-content-manager';
 
 export default function AdminLogin() {
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-  const { authenticate, isAuthenticated } = useStaticContentManager();
-
+  // Simple authentication without hooks for static export compatibility
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/admin');
+    // Check if already authenticated
+    const storedToken = localStorage.getItem('github-token');
+    if (storedToken) {
+      // Verify token is still valid
+      fetch('https://api.github.com/user', {
+        headers: { 'Authorization': `token ${storedToken}` }
+      }).then(response => {
+        if (response.ok) {
+          router.push('/admin');
+        }
+      }).catch(() => {
+        localStorage.removeItem('github-token');
+      });
     }
-  }, [isAuthenticated, router]);
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,14 +31,25 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const success = await authenticate(token);
-      if (success) {
+      // Direct GitHub API authentication for static hosting
+      const response = await fetch('https://api.github.com/user', {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+
+      if (response.ok) {
+        const user = await response.json();
+        // Store token for future use
+        localStorage.setItem('github-token', token);
+        localStorage.setItem('github-user', JSON.stringify(user));
         router.push('/admin');
       } else {
         setError('Invalid GitHub token. Please check your token and try again.');
       }
     } catch (error) {
-      setError('Authentication failed. Please try again.');
+      setError('Authentication failed. Please check your internet connection and try again.');
     } finally {
       setLoading(false);
     }
