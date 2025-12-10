@@ -42,16 +42,52 @@ jobs:
         # Use admin server build (no static export, no route removal)
         npm run build:admin-server
         
-        # Since static export isn't working in CI, use the .next build directly
-        echo "📦 Preparing deployment files..."
-        if [ ! -d "out" ] && [ -d ".next" ]; then
-          echo "Using .next directory as deployment source..."
-          # Copy .htaccess for shared hosting
-          if [ -f "admin-htaccess" ]; then
-            cp admin-htaccess .next/.htaccess
-            echo "✅ Added .htaccess for shared hosting"
+        # Create static export for shared hosting
+        echo "📦 Creating static export..."
+        
+        # Remove API routes temporarily to enable static export
+        echo "Temporarily removing API routes..."
+        if [ -d "app/api" ]; then
+          mv app/api app/api.backup
+        fi
+        
+        # Force static export
+        echo "Running manual export..."
+        npx next export || {
+          echo "Standard export failed, creating manual static export..."
+          
+          # Create out directory structure
+          mkdir -p out/admin out/admin/login out/admin/events out/admin/sermons out/admin/ministries
+          
+          # Copy static assets
+          if [ -d ".next/static" ]; then
+            mkdir -p out/_next
+            cp -r .next/static out/_next/static
           fi
-          echo "✅ .next directory will be deployed"
+          
+          # Copy built pages as HTML files
+          if [ -f ".next/server/app/index.html" ]; then
+            cp .next/server/app/index.html out/
+          fi
+          
+          # Create admin pages from server build
+          find .next/server/app -name "*.html" | while read file; do
+            # Get relative path without .next/server/app prefix
+            rel_path=${file#.next/server/app/}
+            target_dir="out/$(dirname "$rel_path")"
+            mkdir -p "$target_dir"
+            cp "$file" "$target_dir/index.html"
+          done
+          
+          # Add .htaccess for routing
+          if [ -f "admin-htaccess" ]; then
+            cp admin-htaccess out/.htaccess
+          fi
+        }
+        
+        # Restore API routes
+        if [ -d "app/api.backup" ]; then
+          mv app/api.backup app/api
         fi
         
         # Verify build - check for static export files
@@ -60,13 +96,15 @@ jobs:
         if [ -d "out" ]; then
           echo "✅ Static export directory found"
           ls -la out/ | head -10
+          echo "Checking for admin pages..."
+          if [ -f "out/admin/index.html" ]; then
+            echo "✅ Admin pages exported successfully"
+          else
+            echo "⚠️ Admin pages may not be properly exported"
+          fi
           DEPLOY_SOURCE="out"
-        elif [ -d ".next" ]; then
-          echo "✅ Next.js build directory found"
-          ls -la .next/ | head -10
-          DEPLOY_SOURCE=".next"
         else
-          echo "❌ No build output found"
+          echo "❌ No static export found"
           echo "Available directories:"
           ls -la | grep "^d"
           exit 1
