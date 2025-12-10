@@ -42,18 +42,18 @@ jobs:
         # Use admin server build (no static export, no route removal)
         npm run build:admin-server
         
-        # Verify build - check for out directory with HTML files
+        # Verify build - check for static export files
         echo "📂 Checking build output..."
         ls -la
+        if [ -d ".next" ]; then
         if [ -d "out" ]; then
-          echo "✅ Static export completed successfully!"
-          echo "Files in out directory:"
-          ls -la out/
-          echo "Checking for index.html..."
+          echo "✅ Static export directory found"
+          ls -la out/ | head -10
+          echo "Checking for HTML files..."
           if [ -f "out/index.html" ]; then
-            echo "✅ index.html found - ready for web deployment"
+            echo "✅ Static HTML files found - export successful"
           else
-            echo "❌ No index.html found in out directory"
+            echo "❌ No HTML files found in out directory"
             exit 1
           fi
         else
