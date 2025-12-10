@@ -2,7 +2,7 @@ name: Deploy to Hostinger
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, production ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      DEPLOY_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+      DEPLOY_ENV: ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}
     
     steps:
     - name: Checkout code

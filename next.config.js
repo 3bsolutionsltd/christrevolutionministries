@@ -2,7 +2,8 @@ const crypto = require('crypto');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // Enable static export for deployment
+  // Conditional output based on environment - export only for production builds
+  ...(process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_ENVIRONMENT !== 'development' ? { output: 'export' } : {}),
   trailingSlash: true,
   productionBrowserSourceMaps: false, // Disable source maps in production
   poweredByHeader: false, // Remove X-Powered-By header
@@ -14,7 +15,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true, // Required for static export
+    unoptimized: process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_ENVIRONMENT !== 'development',
     domains: ['christrevolutionministries.org', 'img.youtube.com'], // Allow YouTube thumbnails
   },
   // Exclude admin and API routes from static build
