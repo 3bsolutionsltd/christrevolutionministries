@@ -192,35 +192,27 @@ export default function MinistriesPage() {
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-4">About This Ministry</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    {selectedMinistry.fullDescription || selectedMinistry.desc}
+                    {selectedMinistry.description}
                   </p>
                   
                   <div className="bg-blue-50 p-6 rounded-2xl">
                     <h4 className="text-lg font-bold text-gray-900 mb-3">Schedule & Details</h4>
                     <div className="space-y-2 text-sm">
-                      {selectedMinistry.schedule && <p><span className="font-medium text-gray-900">When:</span> {selectedMinistry.schedule}</p>}
-                      {selectedMinistry.age && <p><span className="font-medium text-gray-900">Age Group:</span> {selectedMinistry.age}</p>}
+                      {selectedMinistry.meetingTime && <p><span className="font-medium text-gray-900">When:</span> {selectedMinistry.meetingTime}</p>}
+                      {selectedMinistry.location && <p><span className="font-medium text-gray-900">Where:</span> {selectedMinistry.location}</p>}
                       {selectedMinistry.leader && <p><span className="font-medium text-gray-900">Leader:</span> {selectedMinistry.leader}</p>}
-                      {selectedMinistry.contact && <p><span className="font-medium text-gray-900">Contact:</span> {selectedMinistry.contact}</p>}
+                      {selectedMinistry.contact?.email && <p><span className="font-medium text-gray-900">Email:</span> {selectedMinistry.contact.email}</p>}
+                      {selectedMinistry.contact?.phone && <p><span className="font-medium text-gray-900">Phone:</span> {selectedMinistry.contact.phone}</p>}
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Activities & Programs</h3>
-                  <div className="space-y-3">
-                    {selectedMinistry.activities && selectedMinistry.activities.length > 0 ? (
-                      selectedMinistry.activities.map((activity, index) => (
-                        <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                          <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                          <span className="text-gray-700">{activity}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-gray-500 italic">Activities coming soon...</p>
-                    )}
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Get Involved</h3>
+                  <div className="space-y-4">
+                    <p className="text-gray-600 leading-relaxed">
+                      Join us in this ministry to make a difference in our community and grow in your faith journey.
+                    </p>
                   </div>
                   
                   <div className="mt-8 flex flex-col gap-4">
@@ -230,12 +222,20 @@ export default function MinistriesPage() {
                     >
                       Join This Ministry
                     </a>
-                    {selectedMinistry.contact && (
+                    {selectedMinistry.contact?.phone && (
                       <a 
-                        href={`tel:${selectedMinistry.contact}`} 
+                        href={`tel:${selectedMinistry.contact.phone}`} 
                         className="w-full px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors duration-200 text-center"
                       >
                         Call Leader
+                      </a>
+                    )}
+                    {selectedMinistry.contact?.email && (
+                      <a 
+                        href={`mailto:${selectedMinistry.contact.email}`} 
+                        className="w-full px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors duration-200 text-center"
+                      >
+                        Email Leader
                       </a>
                     )}
                   </div>

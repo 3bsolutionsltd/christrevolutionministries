@@ -56,6 +56,31 @@ export default function AdminDashboard() {
           </div>
         </Link>
 
+        {/* Content Management Card */}
+        <Link href="/admin/content" className="block">
+          <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow">
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center text-white text-lg">
+                    📝
+                  </div>
+                </div>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      Content Management
+                    </dt>
+                    <dd className="text-lg font-medium text-gray-900">
+                      Manage ministries, sermons & events
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Link>
+
         {/* Site Settings Card */}
         <Link href="/admin/site-settings" className="block">
           <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow">

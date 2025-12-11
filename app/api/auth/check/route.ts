@@ -11,13 +11,47 @@ export async function GET(request: NextRequest) {
     
     console.log('Auth check - Session ID received:', sessionId ? 'yes' : 'no');
     
+    // Check traditional session first
     if (sessionId && validateSession(sessionId)) {
-      console.log('Auth check - Valid session');
+      console.log('Auth check - Valid traditional session');
       return NextResponse.json({ 
         success: true, 
         authenticated: true,
         message: 'User is authenticated' 
       });
+    }
+    
+    // Check for GitHub OAuth session
+    if (sessionId === 'github-oauth-session') {
+      // Check if GitHub token exists in cookie (set by OAuth flow)
+      const session = request.cookies.get('admin-session');
+      if (session && session.value.startsWith('github-oauth:')) {
+        const [, username, token] = session.value.split(':');
+        
+        // Verify GitHub token is still valid
+        try {
+          const response = await fetch('https://api.github.com/user', {
+            headers: {
+              'Authorization': `token ${token}`,
+              'Accept': 'application/vnd.github.v3+json',
+            },
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            if (userData.login === username) {
+              console.log('Auth check - Valid GitHub OAuth session');
+              return NextResponse.json({ 
+                success: true, 
+                authenticated: true,
+                message: 'User is authenticated via GitHub OAuth' 
+              });
+            }
+          }
+        } catch (error) {
+          console.error('GitHub token validation error:', error);
+        }
+      }
     }
     
     console.log('Auth check - Invalid or missing session');
