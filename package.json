@@ -26,10 +26,10 @@
     "security:monitor": "npm run security:check && npm run security:csp"
   },
   "dependencies": {
-    "next": "15.4.6",
+    "next": "^16.0.10",
     "node-fetch": "^3.3.2",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.12",
