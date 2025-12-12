@@ -1,13 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { requireAuth } from '../../auth/middleware';
-import { getHomepageSettings, saveHomepageSettings, extractTokenFromCookie } from '../data-manager';
+import { getHomepageSettings, saveHomepageSettings } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
+
+function extractTokenFromCookie(): string | undefined {
+  const cookieStore = cookies();
+  const sessionCookie = cookieStore.get('admin-session');
+  
+  console.log('[GET homepage-settings] Session cookie:', sessionCookie);
+  
+  if (!sessionCookie) {
+    console.log('[GET homepage-settings] No admin-session cookie found');
+    return undefined;
+  }
+  
+  const parts = sessionCookie.value.split(':');
+  console.log('[GET homepage-settings] Cookie parts:', parts.length);
+  
+  // Format: github-oauth:username:token:timestamp
+  if (parts.length === 4) {
+    console.log('[GET homepage-settings] Token extracted successfully');
+    return parts[2];
+  }
+  
+  return undefined;
+}
 
 export async function GET(request: NextRequest) {
   try {
     // Extract token from cookie for read operations
-    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const token = extractTokenFromCookie();
+    console.log('[GET homepage-settings] Token available?', !!token);
     const settings = await getHomepageSettings(token);
     const response = NextResponse.json({ success: true, data: settings });
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -29,9 +54,11 @@ export async function POST(request: NextRequest) {
 
   try {
     // Extract token from cookie for write operations
-    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const token = extractTokenFromCookie();
+    console.log('[POST homepage-settings] Token available?', !!token);
     
     if (!token) {
+      console.log('[POST homepage-settings] No token found, returning 401');
       return NextResponse.json(
         { success: false, message: 'GitHub token not found. Please log in again.' },
         { status: 401 }

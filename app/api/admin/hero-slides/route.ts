@@ -1,12 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { requireAuth } from '../../auth/middleware';
-import { getHeroSlides, saveHeroSlides, extractTokenFromCookie } from '../data-manager';
+import { getHeroSlides, saveHeroSlides } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
 
+function extractTokenFromCookie(): string | undefined {
+  const cookieStore = cookies();
+  const sessionCookie = cookieStore.get('admin-session');
+  
+  console.log('[hero-slides] Session cookie:', sessionCookie);
+  
+  if (!sessionCookie) {
+    console.log('[hero-slides] No admin-session cookie found');
+    return undefined;
+  }
+  
+  const parts = sessionCookie.value.split(':');
+  console.log('[hero-slides] Cookie parts:', parts.length);
+  
+  // Format: github-oauth:username:token:timestamp
+  if (parts.length === 4) {
+    console.log('[hero-slides] Token extracted successfully');
+    return parts[2];
+  }
+  
+  return undefined;
+}
+
 export async function GET(request: NextRequest) {
   try {
-    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const token = extractTokenFromCookie();
+    console.log('[GET hero-slides] Token available?', !!token);
     const slides = await getHeroSlides(token);
     const response = NextResponse.json({ success: true, data: slides });
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -27,9 +52,11 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
-    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const token = extractTokenFromCookie();
+    console.log('[POST hero-slides] Token available?', !!token);
     
     if (!token) {
+      console.log('[POST hero-slides] No token found, returning 401');
       return NextResponse.json(
         { success: false, message: 'GitHub token not found. Please log in again.' },
         { status: 401 }
