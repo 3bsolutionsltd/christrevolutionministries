@@ -5,8 +5,8 @@ import { getHomepageSettings, saveHomepageSettings } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
 
-function extractTokenFromCookie(): string | undefined {
-  const cookieStore = cookies();
+async function extractTokenFromCookie(): Promise<string | undefined> {
+  const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('admin-session');
   
   console.log('[GET homepage-settings] Session cookie:', sessionCookie);
@@ -31,7 +31,7 @@ function extractTokenFromCookie(): string | undefined {
 export async function GET(request: NextRequest) {
   try {
     // Extract token from cookie for read operations
-    const token = extractTokenFromCookie();
+    const token = await extractTokenFromCookie();
     console.log('[GET homepage-settings] Token available?', !!token);
     const settings = await getHomepageSettings(token);
     const response = NextResponse.json({ success: true, data: settings });
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Extract token from cookie for write operations
-    const token = extractTokenFromCookie();
+    const token = await extractTokenFromCookie();
     console.log('[POST homepage-settings] Token available?', !!token);
     
     if (!token) {

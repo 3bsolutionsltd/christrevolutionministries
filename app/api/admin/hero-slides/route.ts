@@ -5,8 +5,8 @@ import { getHeroSlides, saveHeroSlides } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
 
-function extractTokenFromCookie(): string | undefined {
-  const cookieStore = cookies();
+async function extractTokenFromCookie(): Promise<string | undefined> {
+  const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('admin-session');
   
   console.log('[hero-slides] Session cookie:', sessionCookie);
@@ -28,9 +28,9 @@ function extractTokenFromCookie(): string | undefined {
   return undefined;
 }
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const token = extractTokenFromCookie();
+    const token = await extractTokenFromCookie();kie();
     console.log('[GET hero-slides] Token available?', !!token);
     const slides = await getHeroSlides(token);
     const response = NextResponse.json({ success: true, data: slides });
