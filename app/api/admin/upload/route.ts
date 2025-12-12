@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
-import { extractTokenFromCookie } from '../data-manager';
+import { getTokenFromCookie } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Extract GitHub token from session cookie
-    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const token = await getTokenFromCookie();
     
     if (!token) {
       return NextResponse.json(

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
-import { getEvents, saveEvents, extractTokenFromCookie } from '../data-manager';
+import { getEvents, saveEvents, getTokenFromCookie } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const token = await getTokenFromCookie();
     const events = await getEvents(token);
     return NextResponse.json({ success: true, data: events });
   } catch (error) {
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
-    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const token = await getTokenFromCookie();
     
     if (!token) {
       return NextResponse.json(

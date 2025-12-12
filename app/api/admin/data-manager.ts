@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers';
 import { readDataFile as readFromGitHub, writeDataFile as writeToGitHub } from './github-storage';
 
 // File paths in the repository
@@ -24,7 +25,7 @@ export function extractTokenFromHeaders(headers: Headers): string | undefined {
 }
 
 /**
- * Helper to get token from OAuth session cookie
+ * Helper to get token from OAuth session cookie (legacy - for backward compatibility)
  */
 export function extractTokenFromCookie(cookieHeader: string | null): string | undefined {
   console.log('[extractTokenFromCookie] Cookie header:', cookieHeader);
@@ -34,10 +35,10 @@ export function extractTokenFromCookie(cookieHeader: string | null): string | un
     return undefined;
   }
   
-  const cookies = cookieHeader.split(';').map(c => c.trim());
-  console.log('[extractTokenFromCookie] All cookies:', cookies);
+  const cookiesArray = cookieHeader.split(';').map(c => c.trim());
+  console.log('[extractTokenFromCookie] All cookies:', cookiesArray);
   
-  const sessionCookie = cookies.find(c => c.startsWith('admin-session='));
+  const sessionCookie = cookiesArray.find(c => c.startsWith('admin-session='));
   console.log('[extractTokenFromCookie] Session cookie:', sessionCookie);
   
   if (!sessionCookie) {
@@ -56,6 +57,33 @@ export function extractTokenFromCookie(cookieHeader: string | null): string | un
   }
   
   console.log('[extractTokenFromCookie] Invalid cookie format');
+  return undefined;
+}
+
+/**
+ * Modern async helper to get token from OAuth session cookie using Next.js cookies() API
+ */
+export async function getTokenFromCookie(): Promise<string | undefined> {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get('admin-session');
+  
+  console.log('[getTokenFromCookie] Session cookie:', sessionCookie);
+  
+  if (!sessionCookie) {
+    console.log('[getTokenFromCookie] No admin-session cookie found');
+    return undefined;
+  }
+  
+  const parts = sessionCookie.value.split(':');
+  console.log('[getTokenFromCookie] Cookie parts:', parts.length);
+  
+  // Format: github-oauth:username:token:timestamp
+  if (parts.length === 4) {
+    console.log('[getTokenFromCookie] Token extracted successfully');
+    return parts[2];
+  }
+  
+  console.log('[getTokenFromCookie] Invalid cookie format');
   return undefined;
 }
 

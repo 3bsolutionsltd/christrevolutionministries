@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
-import { getMinistries, saveMinistries, extractTokenFromCookie } from '../data-manager';
+import { getMinistries, saveMinistries, getTokenFromCookie } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const token = await getTokenFromCookie();
     const ministries = await getMinistries(token);
     return NextResponse.json({ success: true, data: ministries });
   } catch (error) {
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
-    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const token = await getTokenFromCookie();
     
     if (!token) {
       return NextResponse.json(

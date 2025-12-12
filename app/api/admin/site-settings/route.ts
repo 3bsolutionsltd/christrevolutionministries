@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
-import { getSiteSettings, saveSiteSettings, extractTokenFromCookie } from '../data-manager';
+import { getSiteSettings, saveSiteSettings, getTokenFromCookie } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const token = await getTokenFromCookie();
     const settings = await getSiteSettings(token);
     const response = NextResponse.json({ success: true, data: settings });
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
-    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const token = await getTokenFromCookie();
     
     if (!token) {
       return NextResponse.json(
