@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
+  // Skip middleware entirely for static exports
+  // Static hosting handles security headers via .htaccess
+  if (process.env.NODE_ENV === 'production' && process.env.NEXT_CONFIG !== 'admin') {
+    return NextResponse.next()
+  }
+  
   // Get response
   const response = NextResponse.next()
 
