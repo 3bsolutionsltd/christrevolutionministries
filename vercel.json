@@ -1,6 +1,6 @@
 {
-  "buildCommand": "NODE_ENV=production NEXT_CONFIG=admin ADMIN_MODE=true npx next build",
   "framework": "nextjs",
+  "buildCommand": "next build",
   "env": {
     "NODE_ENV": "production",
     "NEXT_CONFIG": "admin",
