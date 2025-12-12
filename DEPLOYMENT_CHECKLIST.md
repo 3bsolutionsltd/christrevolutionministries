@@ -3,8 +3,8 @@
 ## ✅ Pre-Deployment Checklist
 
 ### 1. Vercel Account Setup
-- [ ] Login to Vercel (vercel.com)
-- [ ] Have your GitHub repo connected to Vercel
+- [x] Login to Vercel (✅ Already done with `npx vercel login`)
+- [ ] Deploy via CLI (easier than connecting GitHub repo)
 
 ### 2. GitHub OAuth Configuration
 - [ ] Go to https://github.com/settings/developers
@@ -19,17 +19,25 @@
 
 ## 🚀 Deployment Steps
 
-### Step 1: Deploy to Vercel
+### Step 1: Deploy to Vercel (CLI Method - Recommended)
 ```bash
-# Install Vercel CLI (if not installed)
-npm i -g vercel
+# You've already logged in! Now deploy:
+npx vercel
 
-# Login to Vercel
-vercel login
+# Follow the prompts:
+# - Set up and deploy? Yes
+# - Which scope? (select your account)
+# - Link to existing project? No
+# - What's your project's name? crm-admin (or any name)
+# - In which directory is your code located? ./ (press Enter)
+# - Want to override the settings? No
 
-# Deploy (from project root)
-vercel --prod
+# This creates a preview deployment first
+# After successful preview, deploy to production:
+npx vercel --prod
 ```
+
+**Note:** Use `npx vercel` instead of just `vercel` since the global command isn't in your PATH.
 
 ### Step 2: Configure Environment Variables in Vercel
 
@@ -47,7 +55,7 @@ Add these variables for **Production**:
 
 ### Step 3: Redeploy After Setting Environment Variables
 ```bash
-vercel --prod
+npx vercel --prod
 ```
 
 Or trigger redeploy from Vercel Dashboard → Deployments → Redeploy

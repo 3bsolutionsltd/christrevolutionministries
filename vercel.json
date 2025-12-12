@@ -1,9 +1,6 @@
 {
-  "version": 2,
-  "name": "crm-admin",
-  "buildCommand": "npm run build:vercel-admin",
+  "buildCommand": "NODE_ENV=production NEXT_CONFIG=admin ADMIN_MODE=true npx next build",
   "framework": "nextjs",
-  "installCommand": "npm ci",
   "env": {
     "NODE_ENV": "production",
     "NEXT_CONFIG": "admin",
@@ -15,9 +12,5 @@
       "NEXT_CONFIG": "admin",
       "ADMIN_MODE": "true"
     }
-  },
-  "regions": ["iad1"],
-  "github": {
-    "enabled": false
   }
 }
