@@ -90,9 +90,10 @@ export async function GET(request: NextRequest) {
     const timestamp = Date.now();
     response.cookies.set('admin-session', `github-oauth:${userData.login}:${tokenData.access_token}:${timestamp}`, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 // 24 hours
+      secure: true, // Always secure for production
+      sameSite: 'none', // Required for cross-site cookies
+      maxAge: 60 * 60 * 24, // 24 hours
+      path: '/' // Ensure cookie is available across all paths
     })
     
     return response
@@ -184,9 +185,10 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now();
     response.cookies.set('admin-session', `github-oauth:${userData.login}:${tokenData.access_token}:${timestamp}`, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 // 24 hours (reduced from 7 days for security)
+      secure: true, // Always secure for production
+      sameSite: 'none', // Required for cross-site cookies
+      maxAge: 60 * 60 * 24, // 24 hours
+      path: '/' // Ensure cookie is available across all paths
     })
     
     return response
