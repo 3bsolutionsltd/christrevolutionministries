@@ -88,33 +88,40 @@ RewriteEngine On
 # Set directory index files
 DirectoryIndex index.html index.htm
 
-# Skip rewriting for actual files (JS, CSS, images, etc.)
-RewriteCond %{REQUEST_FILENAME} -f
+# Don't rewrite API routes or files with extensions
+RewriteCond %{REQUEST_URI} ^/api/ [OR]
+RewriteCond %{REQUEST_URI} \.(css|js|jpg|jpeg|png|gif|svg|webp|ico|woff|woff2|eot|ttf|json|txt|html)$
 RewriteRule ^ - [L]
 
-# Handle trailing slashes for directories only
-RewriteCond %{REQUEST_FILENAME} !-f
+# Skip rewriting for actual files and directories
+RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
-RewriteCond %{REQUEST_URI} !(.*)/$
-RewriteRule ^(.*)$ /$1/ [L,R=301]
+RewriteRule ^ - [L]
 
-# Handle clean URLs - only for paths without file extensions
-RewriteCond %{REQUEST_FILENAME} !-f
+# Remove trailing slashes from URLs (except for real directories)
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !.*\.(css|js|jpg|jpeg|png|gif|svg|webp|ico|woff|woff2|eot|ttf|json|txt)$
-RewriteRule ^([^/]+)/?$ $1.html [L]
+RewriteCond %{REQUEST_URI} (.+)/$
+RewriteRule ^ %1 [L,R=301]
+
+# Handle clean URLs - add .html for page routes only
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^([^/]+)$ $1.html [L]
 
 # Handle subdirectories
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^([^/]+)/([^/]+)/?$ $1/$2.html [L]
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^([^/]+)/([^/]+)$ $1/$2.html [L]
 
 # Error pages
 ErrorDocument 404 /404.html
 ErrorDocument 500 /500.html
 
-# Prevent access to sensitive files
-<FilesMatch "\.(env|json|config|log)$">
+# Allow access to API JSON files
+<Directory "/api">
+    Require all granted
+</Directory>
+
+# Prevent access to sensitive files (but allow api/*.json)
+<FilesMatch "^(?!api/.*\.json$)\.(env|config|log)$">
     Order Allow,Deny
     Deny from all
 </FilesMatch>
