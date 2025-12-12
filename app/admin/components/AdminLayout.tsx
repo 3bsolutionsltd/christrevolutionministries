@@ -50,15 +50,18 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
   const checkAuth = async () => {
     try {
-      // Check if we're in a static environment (production only - allow staging)
-      const isStaticEnvironment = typeof window !== 'undefined' && 
-        (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1');
+      // Check if we're in development or on Vercel admin deployment
+      const isDevelopment = typeof window !== 'undefined' && 
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      const isVercelAdmin = typeof window !== 'undefined' && 
+        (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('admin.christrevolutionministries.org'));
       const isStaging = typeof window !== 'undefined' && 
         window.location.hostname.includes('dev.christrevolutionministries.org');
       
-      if (isStaticEnvironment && !isStaging) {
-        // Admin functionality is disabled in production static deployments
-        console.log('Admin functionality disabled in production environment');
+      // Only allow admin on: localhost, Vercel deployments, or staging
+      if (!isDevelopment && !isVercelAdmin && !isStaging) {
+        // Admin functionality is disabled on static hosting
+        console.log('Admin functionality only available on Vercel or localhost');
         router.push('/admin/login?disabled=true');
         return;
       }
