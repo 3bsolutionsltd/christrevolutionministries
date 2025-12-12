@@ -1,14 +1,6 @@
 {
-  "framework": "nextjs",
-  "buildCommand": "next build",
-  "env": {
-    "NODE_ENV": "production",
-    "NEXT_CONFIG": "admin",
-    "ADMIN_MODE": "true"
-  },
   "build": {
     "env": {
-      "NODE_ENV": "production",
       "NEXT_CONFIG": "admin",
       "ADMIN_MODE": "true"
     }
