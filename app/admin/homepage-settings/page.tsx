@@ -32,7 +32,7 @@ export default function HomepageSettingsManager() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('/api/admin/homepage-settings');
+      const response = await fetch('/api/admin/homepage-settings', { credentials: 'include' });
       const data = await response.json();
       if (data.success) {
         setSettings(data.data);
@@ -53,6 +53,8 @@ export default function HomepageSettingsManager() {
     try {
       const response = await fetch('/api/admin/homepage-settings', {
         method: 'POST',
+        credentials: 'include',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
       });
@@ -84,6 +86,8 @@ export default function HomepageSettingsManager() {
 
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
+        credentials: 'include',
+
         body: formData,
       });
 

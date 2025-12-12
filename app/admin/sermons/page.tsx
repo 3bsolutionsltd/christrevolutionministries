@@ -34,7 +34,7 @@ export default function SermonsManager() {
 
   const fetchSermons = async () => {
     try {
-      const response = await fetch('/api/admin/sermons');
+      const response = await fetch('/api/admin/sermons', { credentials: 'include' });
       const data = await response.json();
       if (data.success) {
         setSermons(data.data);
@@ -57,6 +57,8 @@ export default function SermonsManager() {
 
       const response = await fetch('/api/admin/sermons', {
         method: 'POST',
+        credentials: 'include',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, data: dataToSend }),
       });
@@ -98,6 +100,8 @@ export default function SermonsManager() {
     try {
       const response = await fetch('/api/admin/sermons', {
         method: 'POST',
+        credentials: 'include',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete', data: { id: sermon.id } }),
       });

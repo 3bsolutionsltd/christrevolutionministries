@@ -30,7 +30,7 @@ export default function YouTubeLinksManager() {
 
   const fetchLinks = async () => {
     try {
-      const response = await fetch('/api/admin/youtube-links');
+      const response = await fetch('/api/admin/youtube-links', { credentials: 'include' });
       const data = await response.json();
       if (data.success) {
         setLinks(data.data);
@@ -59,6 +59,8 @@ export default function YouTubeLinksManager() {
 
       const response = await fetch('/api/admin/youtube-links', {
         method: 'POST',
+        credentials: 'include',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, data: dataToSend }),
       });
@@ -97,6 +99,8 @@ export default function YouTubeLinksManager() {
     try {
       const response = await fetch('/api/admin/youtube-links', {
         method: 'POST',
+        credentials: 'include',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete', data: { id: link.id } }),
       });

@@ -55,7 +55,7 @@ export default function SiteSettingsManager() {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('/api/admin/site-settings');
+      const response = await fetch('/api/admin/site-settings', { credentials: 'include' });
       const data = await response.json();
       if (data.success) {
         setSettings(data.data);
@@ -76,7 +76,10 @@ export default function SiteSettingsManager() {
     try {
       const response = await fetch('/api/admin/site-settings', {
         method: 'POST',
+        credentials: 'include',
+
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(settings),
       });
 
@@ -107,6 +110,7 @@ export default function SiteSettingsManager() {
 
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
+        credentials: 'include',
         body: formData,
       });
 

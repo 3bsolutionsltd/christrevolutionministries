@@ -26,6 +26,8 @@ export default function PublishPage() {
       const sessionId = localStorage.getItem('admin-session');
       const response = await fetch('/api/admin/publish', {
         method: 'POST',
+        credentials: 'include',
+
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${sessionId}`

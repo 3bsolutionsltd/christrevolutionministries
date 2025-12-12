@@ -37,7 +37,7 @@ export default function EventsManager() {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch('/api/admin/events');
+      const response = await fetch('/api/admin/events', { credentials: 'include' });
       const data = await response.json();
       if (data.success) {
         setEvents(data.data);
@@ -60,6 +60,8 @@ export default function EventsManager() {
 
       const response = await fetch('/api/admin/events', {
         method: 'POST',
+        credentials: 'include',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, data: dataToSend }),
       });
@@ -101,6 +103,8 @@ export default function EventsManager() {
     try {
       const response = await fetch('/api/admin/events', {
         method: 'POST',
+        credentials: 'include',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete', data: { id: event.id } }),
       });
@@ -131,6 +135,8 @@ export default function EventsManager() {
 
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
+        credentials: 'include',
+
         body: formData,
       });
 

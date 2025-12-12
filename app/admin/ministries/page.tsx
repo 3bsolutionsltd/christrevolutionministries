@@ -29,7 +29,7 @@ export default function MinistriesManager() {
 
   const fetchMinistries = async () => {
     try {
-      const response = await fetch('/api/admin/ministries');
+      const response = await fetch('/api/admin/ministries', { credentials: 'include' });
       const data = await response.json();
       if (data.success) {
         setMinistries(data.data);
@@ -52,6 +52,8 @@ export default function MinistriesManager() {
 
       const response = await fetch('/api/admin/ministries', {
         method: 'POST',
+        credentials: 'include',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, data: dataToSend }),
       });
@@ -90,6 +92,8 @@ export default function MinistriesManager() {
     try {
       const response = await fetch('/api/admin/ministries', {
         method: 'POST',
+        credentials: 'include',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete', data: { id: ministry.id } }),
       });
@@ -120,6 +124,8 @@ export default function MinistriesManager() {
 
       const response = await fetch('/api/admin/upload', {
         method: 'POST',
+        credentials: 'include',
+
         body: formData,
       });
 

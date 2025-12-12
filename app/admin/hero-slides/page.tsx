@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
+import { apiGet, apiPost, apiUpload } from '../lib/api-client';
 
 interface HeroSlide {
   id: number;
@@ -35,7 +36,7 @@ export default function HeroSlidesManager() {
 
   const fetchSlides = async () => {
     try {
-      const response = await fetch('/api/admin/hero-slides');
+      const response = await apiGet('/api/admin/hero-slides');
       const data = await response.json();
       if (data.success) {
         setSlides(data.data.sort((a: HeroSlide, b: HeroSlide) => a.order - b.order));
@@ -56,12 +57,7 @@ export default function HeroSlidesManager() {
         ? { ...formData, id: editingSlide.id }
         : { ...formData, order: slides.length + 1 };
 
-      const response = await fetch('/api/admin/hero-slides', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, data: dataToSend }),
-      });
-
+      const response = await apiPost('/api/admin/hero-slides', { action, data: dataToSend });
       const result = await response.json();
       
       if (result.success) {
@@ -97,12 +93,7 @@ export default function HeroSlidesManager() {
     }
 
     try {
-      const response = await fetch('/api/admin/hero-slides', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'delete', data: { id: slide.id } }),
-      });
-
+      const response = await apiPost('/api/admin/hero-slides', { action: 'delete', data: { id: slide.id } });
       const result = await response.json();
       
       if (result.success) {
@@ -120,12 +111,7 @@ export default function HeroSlidesManager() {
   const handleToggleActive = async (slide: HeroSlide) => {
     try {
       const updatedSlide = { ...slide, active: !slide.active };
-      const response = await fetch('/api/admin/hero-slides', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'update', data: updatedSlide }),
-      });
-
+      const response = await apiPost('/api/admin/hero-slides', { action: 'update', data: updatedSlide });
       const result = await response.json();
       
       if (result.success) {
@@ -146,14 +132,7 @@ export default function HeroSlidesManager() {
     setUploadingImage(true);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/admin/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
+      const response = await apiUpload('/api/admin/upload', file);
       const result = await response.json();
       
       if (result.success) {
