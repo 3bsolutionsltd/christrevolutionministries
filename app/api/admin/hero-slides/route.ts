@@ -28,9 +28,9 @@ async function extractTokenFromCookie(): Promise<string | undefined> {
   return undefined;
 }
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const token = await extractTokenFromCookie();kie();
+    const token = await extractTokenFromCookie();
     console.log('[GET hero-slides] Token available?', !!token);
     const slides = await getHeroSlides(token);
     const response = NextResponse.json({ success: true, data: slides });
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
-    const token = extractTokenFromCookie();
+    const token = await extractTokenFromCookie();
     console.log('[POST hero-slides] Token available?', !!token);
     
     if (!token) {
