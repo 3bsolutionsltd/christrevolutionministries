@@ -26,7 +26,10 @@ export async function GET(request: NextRequest) {
       // Check if GitHub token exists in cookie (set by OAuth flow)
       const session = request.cookies.get('admin-session');
       if (session && session.value.startsWith('github-oauth:')) {
-        const [, username, token] = session.value.split(':');
+        const parts = session.value.split(':');
+        const username = parts[1];
+        const token = parts[2];
+        const timestamp = parts[3] ? parseInt(parts[3]) : null;
         
         // Verify GitHub token is still valid
         try {
