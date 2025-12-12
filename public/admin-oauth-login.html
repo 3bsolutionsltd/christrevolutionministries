@@ -106,8 +106,8 @@
             const state = generateRandomState();
             localStorage.setItem('oauth_state', state);
             
-            // Environment-aware redirect URI
-            const currentUrl = window.location.origin + '/admin-oauth-login.html';
+            // Environment-aware redirect URI - use API route for OAuth callback
+            const currentUrl = window.location.origin + '/api/auth/github';
             
             const authUrl = `https://github.com/login/oauth/authorize?` +
                 `client_id=${GITHUB_CLIENT_ID}&` +
