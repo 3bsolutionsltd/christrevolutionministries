@@ -30,5 +30,15 @@
     "ctaText": "",
     "ctaLink": "",
     "id": "slide-3"
+  },
+  {
+    "title": "Prayer Ministry",
+    "subtitle": "Our Prayer Ministry is the heartbeat of our church, where we gather to intercede for our community, nation, and world. We believe in the power of united prayer that moves mountains and changes lives.",
+    "image": "/uploads/1765552342205_congegation.jpg",
+    "order": 4,
+    "active": true,
+    "ctaText": "",
+    "ctaLink": "",
+    "id": 1765552351759
   }
 ]
