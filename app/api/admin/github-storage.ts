@@ -45,7 +45,11 @@ function getGitHubToken(): string | null {
 export async function readGitHubFile(filePath: string, token?: string): Promise<any> {
   const githubToken = token || getGitHubToken();
   
+  console.log('[readGitHubFile] Token provided?', !!token);
+  console.log('[readGitHubFile] Final token available?', !!githubToken);
+  
   if (!githubToken) {
+    console.error('[readGitHubFile] No GitHub token available');
     throw new Error('GitHub token not available');
   }
 

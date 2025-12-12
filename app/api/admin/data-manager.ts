@@ -27,21 +27,35 @@ export function extractTokenFromHeaders(headers: Headers): string | undefined {
  * Helper to get token from OAuth session cookie
  */
 export function extractTokenFromCookie(cookieHeader: string | null): string | undefined {
-  if (!cookieHeader) return undefined;
+  console.log('[extractTokenFromCookie] Cookie header:', cookieHeader);
+  
+  if (!cookieHeader) {
+    console.log('[extractTokenFromCookie] No cookie header found');
+    return undefined;
+  }
   
   const cookies = cookieHeader.split(';').map(c => c.trim());
-  const sessionCookie = cookies.find(c => c.startsWith('admin-session='));
+  console.log('[extractTokenFromCookie] All cookies:', cookies);
   
-  if (!sessionCookie) return undefined;
+  const sessionCookie = cookies.find(c => c.startsWith('admin-session='));
+  console.log('[extractTokenFromCookie] Session cookie:', sessionCookie);
+  
+  if (!sessionCookie) {
+    console.log('[extractTokenFromCookie] No admin-session cookie found');
+    return undefined;
+  }
   
   const value = sessionCookie.split('=')[1];
   const parts = value.split(':');
+  console.log('[extractTokenFromCookie] Cookie parts:', parts.length, 'parts');
   
   // Format: github-oauth:username:token:timestamp
   if (parts.length === 4) {
+    console.log('[extractTokenFromCookie] Token extracted successfully');
     return parts[2]; // Return the token
   }
   
+  console.log('[extractTokenFromCookie] Invalid cookie format');
   return undefined;
 }
 
