@@ -112,6 +112,17 @@ jobs:
           **/.DS_Store
           **/Thumbs.db
           
+    - name: Verify Staging Deployment
+      if: env.DEPLOY_ENV == 'staging'
+      run: |
+        echo "🔍 Verifying staging deployment..."
+        echo "Expected files should be in server-dir: ./dev/"
+        echo "Main index.html should be accessible at: https://dev.christrevolutionministries.org/index.html"
+        echo "If 403 error persists, check:"
+        echo "1. Subdomain configuration in Hostinger control panel"
+        echo "2. File permissions (should be 644 for files, 755 for directories)"
+        echo "3. Directory index settings (.htaccess)"
+          
     - name: Deploy to Production (christrevolutionministries.org)
       if: env.DEPLOY_ENV == 'production'
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4

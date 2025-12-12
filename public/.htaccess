@@ -82,6 +82,9 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 # Handle Next.js routing for static export
 RewriteEngine On
 
+# Set directory index files
+DirectoryIndex index.html index.htm
+
 # Handle trailing slashes
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
