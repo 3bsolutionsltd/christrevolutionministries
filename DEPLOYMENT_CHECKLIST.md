@@ -78,10 +78,17 @@ Or trigger redeploy from Vercel Dashboard → Deployments → Redeploy
 
 ### Step 5: Test Admin Panel
 
-1. Visit: `https://crm-admin.vercel.app` (or custom domain)
+1. Visit: `https://crm-admin-beta.vercel.app` (or custom domain)
 2. Click "Login with GitHub OAuth"
 3. Should redirect to GitHub → authenticate → back to admin
 4. Test creating/editing content
+
+**🎉 NEW: GitHub Storage Integration**
+- Content edits are now committed directly to GitHub repository
+- Each save creates a commit with message like "Update ministries content via admin panel"
+- GitHub Actions automatically deploy changes to Hostinger
+- No database required - all content stored in `data/*.json` files
+- Your OAuth token (with `repo` scope) is used for GitHub API calls
 
 ## 🔧 Troubleshooting
 
