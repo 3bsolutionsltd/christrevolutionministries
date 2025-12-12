@@ -14,6 +14,96 @@ const GITHUB_CLIENT_SECRET = isStaging
 
 const REDIRECT_URI = process.env.NEXT_PUBLIC_BASE_URL + '/admin-oauth-login.html'
 
+// Handle OAuth callback from GitHub (GET request)
+export async function GET(request: NextRequest) {
+  try {
+    const searchParams = request.nextUrl.searchParams
+    const code = searchParams.get('code')
+    const error = searchParams.get('error')
+    
+    if (error) {
+      return NextResponse.redirect(new URL(`/admin/login?error=${error}`, request.url))
+    }
+    
+    if (!code) {
+      return NextResponse.redirect(new URL('/admin/login?error=no_code', request.url))
+    }
+
+    // Exchange code for access token
+    const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        client_id: GITHUB_CLIENT_ID,
+        client_secret: GITHUB_CLIENT_SECRET,
+        code: code,
+        redirect_uri: request.nextUrl.origin + '/api/auth/github',
+      }),
+    })
+
+    const tokenData = await tokenResponse.json()
+
+    if (tokenData.error) {
+      return NextResponse.redirect(new URL(`/admin/login?error=${tokenData.error}`, request.url))
+    }
+
+    // Verify the token works and user has repository access
+    const userResponse = await fetch('https://api.github.com/user', {
+      headers: {
+        'Authorization': `token ${tokenData.access_token}`,
+        'Accept': 'application/vnd.github.v3+json',
+      },
+    })
+
+    if (!userResponse.ok) {
+      return NextResponse.redirect(new URL('/admin/login?error=user_fetch_failed', request.url))
+    }
+
+    const userData = await userResponse.json()
+
+    // Check if user has access to the repository
+    const repoResponse = await fetch('https://api.github.com/repos/3bsolutionsltd/christrevolutionministries', {
+      headers: {
+        'Authorization': `token ${tokenData.access_token}`,
+        'Accept': 'application/vnd.github.v3+json',
+      },
+    })
+
+    if (!repoResponse.ok) {
+      return NextResponse.redirect(new URL('/admin/login?error=no_repo_access', request.url))
+    }
+
+    const repoData = await repoResponse.json()
+    
+    if (!repoData.permissions?.push) {
+      return NextResponse.redirect(new URL('/admin/login?error=no_write_permissions', request.url))
+    }
+
+    // Create redirect response to admin panel
+    const redirectUrl = new URL('/admin', request.url)
+    const response = NextResponse.redirect(redirectUrl)
+    
+    // Set admin session cookie with timestamp for expiration tracking
+    const timestamp = Date.now();
+    response.cookies.set('admin-session', `github-oauth:${userData.login}:${tokenData.access_token}:${timestamp}`, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 // 24 hours
+    })
+    
+    return response
+
+  } catch (error) {
+    console.error('OAuth error:', error)
+    return NextResponse.redirect(new URL('/admin/login?error=auth_failed', request.url))
+  }
+}
+
+// Handle POST requests from client-side OAuth flow (legacy support)
 export async function POST(request: NextRequest) {
   try {
     const { code } = await request.json()
