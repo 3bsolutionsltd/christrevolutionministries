@@ -88,25 +88,28 @@ RewriteEngine On
 # Set directory index files
 DirectoryIndex index.html index.htm
 
-# Don't rewrite Next.js static assets, API routes, or any files with extensions
+# CRITICAL: Stop immediately for ALL static assets and Next.js internals
+# This prevents any rewriting of CSS, JS, images, fonts, or Next.js files
 RewriteCond %{REQUEST_URI} ^/_next/ [OR]
+RewriteCond %{REQUEST_URI} ^/chunks/ [OR]
 RewriteCond %{REQUEST_URI} ^/api/ [OR]
 RewriteCond %{REQUEST_URI} ^/uploads/ [OR]
+RewriteCond %{REQUEST_URI} \.(css|js|map|jpg|jpeg|png|gif|svg|webp|ico|woff|woff2|eot|ttf|otf|json|txt|xml)$
+RewriteRule ^ - [L]
+
+# Stop immediately if the actual file or directory exists
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Remove trailing slashes from file-like URLs
-RewriteCond %{REQUEST_URI} !^/_next/
-RewriteCond %{REQUEST_URI} !^/api/
+# Remove trailing slashes from URLs (not directories)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} (.+)/$
-RewriteRule ^ %1 [L,R=301]
+RewriteRule ^(.*)$ /$1 [L,R=301]
 
-# Handle clean URLs - add .html only if file exists
-RewriteCond %{REQUEST_FILENAME} !-f
+# Only add .html to valid page routes (if the HTML file exists)
 RewriteCond %{REQUEST_FILENAME}.html -f
-RewriteRule ^(.*)$ $1.html [L]
+RewriteRule ^(.+)$ $1.html [L]
 
 # Error pages
 ErrorDocument 404 /404.html
