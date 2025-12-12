@@ -1,0 +1,47 @@
+# Build artifacts
+.next
+out
+.api-backup
+
+# Dependencies
+node_modules
+
+# Environment files (use Vercel dashboard instead)
+.env.local
+.env.development
+.env.production
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Testing
+.coverage
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Documentation (not needed for runtime)
+*.md
+!README.md
+
+# Scripts (not needed for runtime)
+scripts/*.ps1
+setup-*.sh
+create-*.ps1
+
+# Deployment configs for other platforms
+netlify.toml
+.htaccess
+admin-htaccess
+public/.htaccess
