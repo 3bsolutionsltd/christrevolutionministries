@@ -66,12 +66,16 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         return;
       }
       
-      // Get session ID from localStorage
+      // Get session ID from localStorage (if available)
       const sessionId = typeof window !== 'undefined' ? localStorage.getItem('admin-session') : null;
       
       const headers: HeadersInit = { 'Content-Type': 'application/json' };
+      // Send Bearer token if we have a session ID, otherwise just send 'github-oauth-session' to indicate OAuth
       if (sessionId) {
         headers['Authorization'] = `Bearer ${sessionId}`;
+      } else {
+        // For OAuth sessions, the cookie is httpOnly, so we send a flag
+        headers['Authorization'] = `Bearer github-oauth-session`;
       }
       
       const response = await fetch('/api/auth/check', {
