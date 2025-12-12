@@ -30,7 +30,7 @@ export function extractTokenFromCookie(cookieHeader: string | null): string | un
   if (!cookieHeader) return undefined;
   
   const cookies = cookieHeader.split(';').map(c => c.trim());
-  const sessionCookie = cookies.find(c => c.startsWith('github-oauth='));
+  const sessionCookie = cookies.find(c => c.startsWith('admin-session='));
   
   if (!sessionCookie) return undefined;
   

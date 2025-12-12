@@ -1,16 +1,72 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
-import { writeFile } from 'fs/promises';
-import path from 'path';
-import { updateCacheVersion } from '../../../lib/cache-utils';
+import { extractTokenFromCookie } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
+
+const GITHUB_API = 'https://api.github.com';
+const REPO_OWNER = '3bsolutionsltd';
+const REPO_NAME = 'christrevolutionministries';
+const BRANCH = 'main';
+
+/**
+ * Upload file to GitHub repository
+ */
+async function uploadFileToGitHub(
+  filename: string,
+  fileBuffer: Buffer,
+  token: string
+): Promise<boolean> {
+  const filePath = `public/uploads/${filename}`;
+  const url = `${GITHUB_API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${filePath}`;
+  
+  // Convert buffer to base64
+  const content = fileBuffer.toString('base64');
+  
+  try {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      body: JSON.stringify({
+        message: `Upload image: ${filename}`,
+        content: content,
+        branch: BRANCH
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('GitHub upload error:', errorData);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error uploading to GitHub:', error);
+    return false;
+  }
+}
 
 export async function POST(request: NextRequest) {
   const authError = await requireAuth(request);
   if (authError) return authError;
 
   try {
+    // Extract GitHub token from session cookie
+    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: 'GitHub token not found. Please log in again.' },
+        { status: 401 }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
@@ -44,29 +100,24 @@ export async function POST(request: NextRequest) {
     const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
     const filename = `${timestamp}_${originalName}`;
 
-    // Save to public directory
+    // Upload to GitHub
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const publicPath = path.join(process.cwd(), 'public', 'uploads', filename);
     
-    // Ensure uploads directory exists
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    try {
-      await import('fs/promises').then(fs => fs.access(uploadsDir));
-    } catch {
-      await import('fs/promises').then(fs => fs.mkdir(uploadsDir, { recursive: true }));
+    const uploaded = await uploadFileToGitHub(filename, buffer, token);
+
+    if (!uploaded) {
+      return NextResponse.json(
+        { success: false, message: 'Failed to upload file to GitHub' },
+        { status: 500 }
+      );
     }
-
-    await writeFile(publicPath, buffer);
-
-    // Update cache version to bust browser cache
-    updateCacheVersion();
 
     const imageUrl = `/uploads/${filename}`;
 
     return NextResponse.json({
       success: true,
-      message: 'File uploaded successfully',
+      message: 'File uploaded successfully to GitHub',
       data: {
         filename,
         url: imageUrl,
