@@ -9,6 +9,7 @@ const path = require('path');
 console.log('🔄 Restoring API routes...');
 
 const apiDir = path.join(process.cwd(), 'app', 'api');
+const middlewareFile = path.join(process.cwd(), 'middleware.ts');
 const backupDir = path.join(process.cwd(), '.api-backup');
 
 try {
@@ -32,6 +33,16 @@ try {
     }
     fs.cpSync(authBackup, authDir, { recursive: true });
     console.log('✅ Restored auth API routes');
+  }
+
+  // Restore middleware.ts
+  const middlewareBackup = path.join(backupDir, 'middleware.ts');
+  if (fs.existsSync(middlewareBackup)) {
+    if (fs.existsSync(middlewareFile)) {
+      fs.rmSync(middlewareFile);
+    }
+    fs.copyFileSync(middlewareBackup, middlewareFile);
+    console.log('✅ Restored middleware.ts');
   }
 
   // Clean up backup directory

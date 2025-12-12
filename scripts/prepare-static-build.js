@@ -16,6 +16,7 @@ const isProduction = environment === 'production';
 const apiDir = path.join(process.cwd(), 'app', 'api');
 const adminDir = path.join(apiDir, 'admin');
 const authDir = path.join(apiDir, 'auth');
+const middlewareFile = path.join(process.cwd(), 'middleware.ts');
 const backupDir = path.join(process.cwd(), '.api-backup');
 
 try {
@@ -49,7 +50,20 @@ try {
     fs.cpSync(authDir, authBackup, { recursive: true });
     fs.rmSync(authDir, { recursive: true });
     console.log('✅ Moved auth API routes to backup (static build)');
-  }  console.log('🎯 Ready for static build');
+  }
+
+  // Move middleware.ts (not compatible with static exports)
+  if (fs.existsSync(middlewareFile)) {
+    const middlewareBackup = path.join(backupDir, 'middleware.ts');
+    if (fs.existsSync(middlewareBackup)) {
+      fs.rmSync(middlewareBackup);
+    }
+    fs.copyFileSync(middlewareFile, middlewareBackup);
+    fs.rmSync(middlewareFile);
+    console.log('✅ Moved middleware.ts to backup (static build)');
+  }
+
+  console.log('🎯 Ready for static build');
 } catch (error) {
   console.error('❌ Error preparing for build:', error.message);
   // Don't exit on error - continue with build
