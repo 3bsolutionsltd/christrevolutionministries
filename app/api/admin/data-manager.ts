@@ -1,46 +1,52 @@
-import fs from 'fs/promises';
-import path from 'path';
+import { readDataFile as readFromGitHub, writeDataFile as writeToGitHub } from './github-storage';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const MINISTRIES_FILE = path.join(DATA_DIR, 'ministries.json');
-const EVENTS_FILE = path.join(DATA_DIR, 'events.json');
-const SERMONS_FILE = path.join(DATA_DIR, 'sermons.json');
-const YOUTUBE_LINKS_FILE = path.join(DATA_DIR, 'youtube-links.json');
+// File paths in the repository
+const MINISTRIES_FILE = 'data/ministries.json';
+const EVENTS_FILE = 'data/events.json';
+const SERMONS_FILE = 'data/sermons.json';
+const YOUTUBE_LINKS_FILE = 'data/youtube-links.json';
+const HERO_SLIDES_FILE = 'data/hero-slides.json';
+const HOMEPAGE_SETTINGS_FILE = 'data/homepage-settings.json';
+const SITE_SETTINGS_FILE = 'data/site-settings.json';
 
-// Ensure data directory exists
-async function ensureDataDir() {
-  try {
-    await fs.access(DATA_DIR);
-  } catch {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-  }
+/**
+ * Helper to extract token from request headers
+ */
+export function extractTokenFromHeaders(headers: Headers): string | undefined {
+  const authHeader = headers.get('Authorization');
+  if (!authHeader) return undefined;
+  
+  // Handle "Bearer token" or "Bearer github-oauth-session"
+  const parts = authHeader.split(' ');
+  if (parts.length !== 2 || parts[0] !== 'Bearer') return undefined;
+  
+  return parts[1];
 }
 
-// Generic file operations
-export async function readDataFile(filePath: string, defaultData: any = []) {
-  try {
-    await ensureDataDir();
-    const data = await fs.readFile(filePath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    // File doesn't exist, return default data
-    return defaultData;
+/**
+ * Helper to get token from OAuth session cookie
+ */
+export function extractTokenFromCookie(cookieHeader: string | null): string | undefined {
+  if (!cookieHeader) return undefined;
+  
+  const cookies = cookieHeader.split(';').map(c => c.trim());
+  const sessionCookie = cookies.find(c => c.startsWith('github-oauth='));
+  
+  if (!sessionCookie) return undefined;
+  
+  const value = sessionCookie.split('=')[1];
+  const parts = value.split(':');
+  
+  // Format: github-oauth:username:token:timestamp
+  if (parts.length === 4) {
+    return parts[2]; // Return the token
   }
-}
-
-export async function writeDataFile(filePath: string, data: any) {
-  try {
-    await ensureDataDir();
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
-    return true;
-  } catch (error) {
-    console.error('Error writing data file:', error);
-    return false;
-  }
+  
+  return undefined;
 }
 
 // Ministries operations
-export async function getMinistries() {
+export async function getMinistries(token?: string) {
   const defaultMinistries = [
     { 
       id: 1,
@@ -71,15 +77,24 @@ export async function getMinistries() {
       icon: '✨'
     },
   ];
-  return readDataFile(MINISTRIES_FILE, defaultMinistries);
+  const result = await readFromGitHub(MINISTRIES_FILE, defaultMinistries, token);
+  return result.content;
 }
 
-export async function saveMinistries(ministries: any[]) {
-  return writeDataFile(MINISTRIES_FILE, ministries);
+export async function saveMinistries(ministries: any[], token?: string) {
+  // First read to get the current SHA
+  const result = await readFromGitHub(MINISTRIES_FILE, [], token);
+  return writeToGitHub(
+    MINISTRIES_FILE, 
+    ministries, 
+    'Update ministries content via admin panel',
+    token,
+    result.sha
+  );
 }
 
 // Events operations
-export async function getEvents() {
+export async function getEvents(token?: string) {
   const defaultEvents = [
     { 
       id: 1,
@@ -102,15 +117,23 @@ export async function getEvents() {
       img: '/youth-web-330x201.jpg'
     },
   ];
-  return readDataFile(EVENTS_FILE, defaultEvents);
+  const result = await readFromGitHub(EVENTS_FILE, defaultEvents, token);
+  return result.content;
 }
 
-export async function saveEvents(events: any[]) {
-  return writeDataFile(EVENTS_FILE, events);
+export async function saveEvents(events: any[], token?: string) {
+  const result = await readFromGitHub(EVENTS_FILE, [], token);
+  return writeToGitHub(
+    EVENTS_FILE, 
+    events, 
+    'Update events content via admin panel',
+    token,
+    result.sha
+  );
 }
 
 // Sermons operations
-export async function getSermons() {
+export async function getSermons(token?: string) {
   const defaultSermons = [
     {
       id: 1,
@@ -133,15 +156,23 @@ export async function getSermons() {
       description: 'Understanding the transformative power of prayer in our daily lives.'
     }
   ];
-  return readDataFile(SERMONS_FILE, defaultSermons);
+  const result = await readFromGitHub(SERMONS_FILE, defaultSermons, token);
+  return result.content;
 }
 
-export async function saveSermons(sermons: any[]) {
-  return writeDataFile(SERMONS_FILE, sermons);
+export async function saveSermons(sermons: any[], token?: string) {
+  const result = await readFromGitHub(SERMONS_FILE, [], token);
+  return writeToGitHub(
+    SERMONS_FILE, 
+    sermons, 
+    'Update sermons content via admin panel',
+    token,
+    result.sha
+  );
 }
 
 // YouTube links operations
-export async function getYouTubeLinks() {
+export async function getYouTubeLinks(token?: string) {
   const defaultLinks = [
     {
       id: 1,
@@ -158,15 +189,23 @@ export async function getYouTubeLinks() {
       description: 'Youth ministry content'
     }
   ];
-  return readDataFile(YOUTUBE_LINKS_FILE, defaultLinks);
+  const result = await readFromGitHub(YOUTUBE_LINKS_FILE, defaultLinks, token);
+  return result.content;
 }
 
-export async function saveYouTubeLinks(links: any[]) {
-  return writeDataFile(YOUTUBE_LINKS_FILE, links);
+export async function saveYouTubeLinks(links: any[], token?: string) {
+  const result = await readFromGitHub(YOUTUBE_LINKS_FILE, [], token);
+  return writeToGitHub(
+    YOUTUBE_LINKS_FILE, 
+    links, 
+    'Update YouTube links via admin panel',
+    token,
+    result.sha
+  );
 }
 
 // Hero slides operations
-export async function getHeroSlides() {
+export async function getHeroSlides(token?: string) {
   const defaultSlides = [
     {
       id: 1,
@@ -177,30 +216,46 @@ export async function getHeroSlides() {
       buttonLink: '/contact'
     }
   ];
-  return readDataFile(path.join(process.cwd(), 'data', 'hero-slides.json'), defaultSlides);
+  const result = await readFromGitHub(HERO_SLIDES_FILE, defaultSlides, token);
+  return result.content;
 }
 
-export async function saveHeroSlides(slides: any[]) {
-  return writeDataFile(path.join(process.cwd(), 'data', 'hero-slides.json'), slides);
+export async function saveHeroSlides(slides: any[], token?: string) {
+  const result = await readFromGitHub(HERO_SLIDES_FILE, [], token);
+  return writeToGitHub(
+    HERO_SLIDES_FILE, 
+    slides, 
+    'Update hero slides via admin panel',
+    token,
+    result.sha
+  );
 }
 
 // Homepage settings operations
-export async function getHomepageSettings() {
+export async function getHomepageSettings(token?: string) {
   const defaultSettings = {
     welcomeMessage: 'Welcome to Christ Revolution Ministries',
     featuredMinistry: 1,
     showUpcomingEvents: true,
     maxEventsToShow: 3
   };
-  return readDataFile(path.join(process.cwd(), 'data', 'homepage-settings.json'), defaultSettings);
+  const result = await readFromGitHub(HOMEPAGE_SETTINGS_FILE, defaultSettings, token);
+  return result.content;
 }
 
-export async function saveHomepageSettings(settings: any) {
-  return writeDataFile(path.join(process.cwd(), 'data', 'homepage-settings.json'), settings);
+export async function saveHomepageSettings(settings: any, token?: string) {
+  const result = await readFromGitHub(HOMEPAGE_SETTINGS_FILE, {}, token);
+  return writeToGitHub(
+    HOMEPAGE_SETTINGS_FILE, 
+    settings, 
+    'Update homepage settings via admin panel',
+    token,
+    result.sha
+  );
 }
 
 // Site settings operations
-export async function getSiteSettings() {
+export async function getSiteSettings(token?: string) {
   const defaultSettings = {
     siteName: 'Christ Revolution Ministries',
     tagline: 'Transforming Lives Through God\'s Love',
@@ -208,9 +263,17 @@ export async function getSiteSettings() {
     phone: '+1-234-567-8900',
     address: '123 Faith Street, Hope City, HC 12345'
   };
-  return readDataFile(path.join(process.cwd(), 'data', 'site-settings.json'), defaultSettings);
+  const result = await readFromGitHub(SITE_SETTINGS_FILE, defaultSettings, token);
+  return result.content;
 }
 
-export async function saveSiteSettings(settings: any) {
-  return writeDataFile(path.join(process.cwd(), 'data', 'site-settings.json'), settings);
+export async function saveSiteSettings(settings: any, token?: string) {
+  const result = await readFromGitHub(SITE_SETTINGS_FILE, {}, token);
+  return writeToGitHub(
+    SITE_SETTINGS_FILE, 
+    settings, 
+    'Update site settings via admin panel',
+    token,
+    result.sha
+  );
 }

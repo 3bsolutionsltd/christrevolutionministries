@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
-import { getHeroSlides, saveHeroSlides } from '../data-manager';
+import { getHeroSlides, saveHeroSlides, extractTokenFromCookie } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const slides = await getHeroSlides();
+    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const slides = await getHeroSlides(token);
     const response = NextResponse.json({ success: true, data: slides });
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     response.headers.set('Pragma', 'no-cache');
@@ -26,10 +27,19 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
+    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: 'GitHub token not found. Please log in again.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { action, data } = body;
 
-    const slides = await getHeroSlides();
+    const slides = await getHeroSlides(token);
 
     switch (action) {
       case 'add':
@@ -74,11 +84,11 @@ export async function POST(request: NextRequest) {
           return slide;
         }).filter(Boolean);
         
-        const saved = await saveHeroSlides(orderedSlides);
-        if (saved) {
+        const reorderSaved = await saveHeroSlides(orderedSlides, token);
+        if (reorderSaved) {
           return NextResponse.json({ 
             success: true, 
-            message: 'Slides reordered successfully',
+            message: 'Slides reordered successfully and committed to GitHub',
             data: orderedSlides 
           });
         }
@@ -91,16 +101,16 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const saved = await saveHeroSlides(slides);
+    const saved = await saveHeroSlides(slides, token);
     if (saved) {
       return NextResponse.json({ 
         success: true, 
-        message: `Slide ${action}d successfully`,
+        message: `Slide ${action}d successfully and committed to GitHub`,
         data: slides 
       });
     } else {
       return NextResponse.json(
-        { success: false, message: 'Failed to save slides' },
+        { success: false, message: 'Failed to save slides to GitHub' },
         { status: 500 }
       );
     }

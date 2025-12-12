@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
-import { getSermons, saveSermons } from '../data-manager';
+import { getSermons, saveSermons, extractTokenFromCookie } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const sermons = await getSermons();
+    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const sermons = await getSermons(token);
     return NextResponse.json({ success: true, data: sermons });
   } catch (error) {
     console.error('Error fetching sermons:', error);
@@ -22,10 +23,19 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
+    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: 'GitHub token not found. Please log in again.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { action, data } = body;
 
-    const sermons = await getSermons();
+    const sermons = await getSermons(token);
 
     switch (action) {
       case 'add':
@@ -67,16 +77,16 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const saved = await saveSermons(sermons);
+    const saved = await saveSermons(sermons, token);
     if (saved) {
       return NextResponse.json({ 
         success: true, 
-        message: `Sermon ${action}d successfully`,
+        message: `Sermon ${action}d successfully and committed to GitHub`,
         data: sermons 
       });
     } else {
       return NextResponse.json(
-        { success: false, message: 'Failed to save sermons' },
+        { success: false, message: 'Failed to save sermons to GitHub' },
         { status: 500 }
       );
     }

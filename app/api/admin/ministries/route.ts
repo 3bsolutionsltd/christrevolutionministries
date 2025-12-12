@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
-import { getMinistries, saveMinistries } from '../data-manager';
+import { getMinistries, saveMinistries, extractTokenFromCookie } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const ministries = await getMinistries();
+    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    const ministries = await getMinistries(token);
     return NextResponse.json({ success: true, data: ministries });
   } catch (error) {
     console.error('Error fetching ministries:', error);
@@ -22,10 +23,19 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
+    const token = extractTokenFromCookie(request.headers.get('cookie'));
+    
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: 'GitHub token not found. Please log in again.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { action, data } = body;
 
-    const ministries = await getMinistries();
+    const ministries = await getMinistries(token);
 
     switch (action) {
       case 'add':
@@ -67,16 +77,16 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const saved = await saveMinistries(ministries);
+    const saved = await saveMinistries(ministries, token);
     if (saved) {
       return NextResponse.json({ 
         success: true, 
-        message: `Ministry ${action}d successfully`,
+        message: `Ministry ${action}d successfully and committed to GitHub`,
         data: ministries 
       });
     } else {
       return NextResponse.json(
-        { success: false, message: 'Failed to save ministries' },
+        { success: false, message: 'Failed to save ministries to GitHub' },
         { status: 500 }
       );
     }
