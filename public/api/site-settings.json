@@ -1,0 +1,44 @@
+{
+  "contact": {
+    "email": "info@christrevolutionministries.org",
+    "phone": "+256-772-245292",
+    "address": {
+      "street": "Bulaga, Nakabugo Zion Estate",
+      "city": "Kampala, Uganda",
+      "state": "Doctor's Drive",
+      "zip": "12345"
+    }
+  },
+  "socialLinks": {
+    "facebook": "https://facebook.com/christrevolutionministries",
+    "twitter": "https://twitter.com/crmministries",
+    "youtube": "https://youtube.com/@ChristRevolutionMinistries",
+    "instagram": "https://instagram.com/christrevolutionministries",
+    "linkedin": ""
+  },
+  "seo": {
+    "title": "Christ Revolution Ministries - Transforming Lives Through God's Love",
+    "description": "Join Christ Revolution Ministries for worship, fellowship, and spiritual growth. Experience God's transformative love in a welcoming Christian community.",
+    "keywords": "church, ministry, Christian, worship, faith, community, Jesus Christ, spiritual growth, Bible study",
+    "ogImage": "https://christrevolutionministries.org/logo-100X100.png"
+  },
+  "services": {
+    "sundayService": {
+      "time": "10:00 AM",
+      "description": "Sunday Worship Service"
+    },
+    "wednesdayService": {
+      "time": "7:00 PM",
+      "description": "Wednesday Bible Study"
+    },
+    "otherServices": [
+      "Youth Group - Friday 7:00 PM",
+      "Prayer Meeting - Tuesday 6:00 PM"
+    ]
+  },
+  "footer": {
+    "copyright": "© 2024 Christ Revolution Ministries. All rights reserved.",
+    "additionalText": "Blessed to be a blessing to our community and beyond."
+  },
+  "lastUpdated": "2024-01-01T00:00:00Z"
+}
