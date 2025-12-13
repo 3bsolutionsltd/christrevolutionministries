@@ -64,17 +64,13 @@ export async function getYouTubeLinks() {
 
 export async function getHeroSlides() {
   try {
-    const response = await fetch('/api/admin/hero-slides', {
-      cache: 'no-store', // Ensure fresh data
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
+    // Use static JSON file for production deployment
+    const response = await fetch('/api/hero-slides.json', {
+      cache: 'no-store'
     });
-    const data = await response.json();
-    if (data.success) {
-      return data.data.filter((slide: any) => slide.active).sort((a: any, b: any) => a.order - b.order);
+    if (response.ok) {
+      const slides = await response.json();
+      return slides.filter((slide: any) => slide.active).sort((a: any, b: any) => a.order - b.order);
     }
     return [];
   } catch (error) {
@@ -85,17 +81,12 @@ export async function getHeroSlides() {
 
 export async function getHomepageSettings() {
   try {
-    const response = await fetch('/api/admin/homepage-settings', {
-      cache: 'no-store', // Ensure fresh data
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
+    // Use static JSON file for production deployment
+    const response = await fetch('/api/homepage-settings.json', {
+      cache: 'no-store'
     });
-    const data = await response.json();
-    if (data.success) {
-      return data.data;
+    if (response.ok) {
+      return await response.json();
     }
     return null;
   } catch (error) {
@@ -106,17 +97,12 @@ export async function getHomepageSettings() {
 
 export async function getSiteSettings() {
   try {
-    const response = await fetch('/api/admin/site-settings', {
-      cache: 'no-store', // Ensure fresh data
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
+    // Use static JSON file for production deployment
+    const response = await fetch('/api/site-settings.json', {
+      cache: 'no-store'
     });
-    const data = await response.json();
-    if (data.success) {
-      return data.data;
+    if (response.ok) {
+      return await response.json();
     }
     return null;
   } catch (error) {

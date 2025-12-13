@@ -22,7 +22,10 @@ const files = [
   { source: 'ministries.json', endpoint: 'ministries.json' },
   { source: 'events.json', endpoint: 'events.json' },
   { source: 'sermons.json', endpoint: 'sermons.json' },
-  { source: 'youtube-links.json', endpoint: 'youtube-links.json' }
+  { source: 'youtube-links.json', endpoint: 'youtube-links.json' },
+  { source: 'hero-slides.json', endpoint: 'hero-slides.json' },
+  { source: 'homepage-settings.json', endpoint: 'homepage-settings.json' },
+  { source: 'site-settings.json', endpoint: 'site-settings.json' }
 ];
 
 let successCount = 0;
