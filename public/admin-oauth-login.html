@@ -106,12 +106,12 @@
             const state = generateRandomState();
             localStorage.setItem('oauth_state', state);
             
-            // Environment-aware redirect URI - use API route for OAuth callback
-            const currentUrl = window.location.origin + '/api/auth/github';
+            // Always use the Vercel admin URL as redirect URI - this is the registered OAuth callback
+            const redirectUri = 'https://crm-admin-beta.vercel.app/api/auth/github';
             
             const authUrl = `https://github.com/login/oauth/authorize?` +
                 `client_id=${GITHUB_CLIENT_ID}&` +
-                `redirect_uri=${encodeURIComponent(currentUrl)}&` +
+                `redirect_uri=${encodeURIComponent(redirectUri)}&` +
                 `scope=repo&` +
                 `state=${state}`;
             
