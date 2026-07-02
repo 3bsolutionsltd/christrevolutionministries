@@ -11,6 +11,9 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('[publish/POST] ADMIN_MODE:', process.env.ADMIN_MODE);
+    console.log('[publish/POST] GITHUB_TOKEN available:', !!process.env.GITHUB_TOKEN);
+    
     // Only allow in admin mode
     if (process.env.ADMIN_MODE !== 'true') {
       return NextResponse.json(
@@ -21,9 +24,11 @@ export async function POST(request: NextRequest) {
 
     // Validate admin session (reuse existing auth)
     const authHeader = request.headers.get('Authorization');
+    console.log('[publish/POST] Auth header present:', !!authHeader);
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - No valid authorization header' },
         { status: 401 }
       );
     }
