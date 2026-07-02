@@ -26,7 +26,7 @@
     "security:monitor": "npm run security:check && npm run security:csp"
   },
   "dependencies": {
-    "next": "^16.0.10",
+    "next": "^16.2.6",
     "node-fetch": "^3.3.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
