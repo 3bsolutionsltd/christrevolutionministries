@@ -1,7 +1,7 @@
 {
   "contact": {
     "email": "info@christrevolutionministries.org",
-    "phone": "+256-772-245292",
+    "phone": "+256-755-490034/+256-772-245292/",
     "address": {
       "street": "Bulaga, Nakabugo Zion Estate",
       "city": "Kampala, Uganda",
@@ -24,16 +24,16 @@
   },
   "services": {
     "sundayService": {
-      "time": "10:00 AM",
+      "time": "10:00 AM - 12:30 PM",
       "description": "Sunday Worship Service"
     },
     "wednesdayService": {
-      "time": "7:00 PM",
-      "description": "Wednesday Bible Study"
+      "time": "5:00 PM - 7:00 PM",
+      "description": "Wednesday Evening fellowship"
     },
     "otherServices": [
       "Youth Group - Friday 7:00 PM",
-      "Prayer Meeting - Tuesday 6:00 PM"
+      "Women's Prayer Meeting - Thursday 5:00 PM - 7:00PM"
     ]
   },
   "footer": {
