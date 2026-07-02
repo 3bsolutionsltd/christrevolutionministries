@@ -23,7 +23,9 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
-    const token = await getTokenFromCookie();
+    // Use server-side GITHUB_TOKEN (PAT) for write operations instead of user OAuth token
+    // This ensures commits use a token with bypass permissions for branch protection
+    const token = process.env.GITHUB_TOKEN || await getTokenFromCookie();
     
     if (!token) {
       return NextResponse.json(
