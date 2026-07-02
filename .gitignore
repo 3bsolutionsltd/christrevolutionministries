@@ -41,3 +41,47 @@ next-env.d.ts
 
 # OS
 Thumbs.db
+
+# Work Product Documentation (Internal Use Only)
+# Keep only README.md and CONTRIBUTING.md for public
+ADMIN_*.md
+CLIENT_*.md
+CMS_*.md
+DEPLOYMENT*.md
+GIT_WORKFLOW.md
+GITHUB_*.md
+LOCAL_*.md
+OAuth_*.md
+PROJECT-*.md
+render-*.md
+REPOSITORY_*.md
+SANITY_*.md
+SECURITY_*.md
+SEO-*.md
+SOLUTION_*.md
+STAGING_*.md
+TEST_*.md
+VERCEL_*.md
+WEBSITE_*.md
+CHRIST-REVOLUTION-MINISTRIES.md
+index.md
+
+# Security & Logs
+/logs/
+*.log
+security-check.log
+admin-htaccess
+
+# Deployment Scripts (contain sensitive info)
+setup-deployment.ps1
+setup-deployment.sh
+deploy-content.ps1
+create-develop-branch.ps1
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OAuth service (may contain credentials)
+/oauth-service/
