@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAuth } from '../../auth/middleware';
 import ContentSync from '../../../../lib/content-sync';
 
 /**
@@ -22,29 +23,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate admin session (reuse existing auth)
-    const authHeader = request.headers.get('Authorization');
-    console.log('[publish/POST] Auth header present:', !!authHeader);
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Unauthorized - No valid authorization header' },
-        { status: 401 }
-      );
+    // Validate admin session using standard middleware
+    const authError = await requireAuth(request);
+    if (authError) {
+      console.log('[publish/POST] Authentication failed');
+      return authError;
     }
-
-    const sessionId = authHeader.substring(7);
     
-    // Import session store
-    const { validateSession } = await import('../../../session-store');
-    const session = validateSession(sessionId);
-    
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Invalid session' },
-        { status: 401 }
-      );
-    }
+    console.log('[publish/POST] Authentication successful');
 
     const body = await request.json();
     const { action, target } = body;
