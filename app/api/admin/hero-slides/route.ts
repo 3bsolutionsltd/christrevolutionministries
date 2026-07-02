@@ -52,8 +52,15 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
-    const token = await extractTokenFromCookie();
-    console.log('[POST hero-slides] Token available?', !!token);
+    // Use server-side GITHUB_TOKEN (PAT) for write operations instead of user OAuth token
+    // This ensures commits use a token with bypass permissions for branch protection
+    const serverToken = process.env.GITHUB_TOKEN;
+    const userToken = await extractTokenFromCookie();
+    
+    console.log('[hero-slides/POST] GITHUB_TOKEN available:', !!serverToken);
+    console.log('[hero-slides/POST] Using token from:', serverToken ? 'ENVIRONMENT' : 'COOKIE');
+    
+    const token = serverToken || userToken;
     
     if (!token) {
       console.log('[POST hero-slides] No token found, returning 401');

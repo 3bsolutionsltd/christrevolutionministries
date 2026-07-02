@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
-import { getYouTubeLinks, saveYouTubeLinks } from '../data-manager';
+import { getYouTubeLinks, saveYouTubeLinks, getTokenFromCookie } from '../data-manager';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const links = await getYouTubeLinks();
+    const token = await getTokenFromCookie();
+    const links = await getYouTubeLinks(token);
     return NextResponse.json({ success: true, data: links });
   } catch (error) {
     console.error('Error fetching YouTube links:', error);
@@ -22,10 +23,27 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
+    // Use server-side GITHUB_TOKEN (PAT) for write operations instead of user OAuth token
+    // This ensures commits use a token with bypass permissions for branch protection
+    const serverToken = process.env.GITHUB_TOKEN;
+    const userToken = await getTokenFromCookie();
+    
+    console.log('[youtube-links/POST] GITHUB_TOKEN available:', !!serverToken);
+    console.log('[youtube-links/POST] Using token from:', serverToken ? 'ENVIRONMENT' : 'COOKIE');
+    
+    const token = serverToken || userToken;
+    
+    if (!token) {
+      return NextResponse.json(
+        { success: false, message: 'GitHub token not found. Please log in again.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { action, data } = body;
 
-    const links = await getYouTubeLinks();
+    const links = await getYouTubeLinks(token);
 
     switch (action) {
       case 'add':
@@ -67,7 +85,7 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    const saved = await saveYouTubeLinks(links);
+    const saved = await saveYouTubeLinks(links, token);
     if (saved) {
       return NextResponse.json({ 
         success: true, 

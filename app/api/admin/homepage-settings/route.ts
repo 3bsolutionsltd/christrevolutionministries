@@ -53,9 +53,15 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
-    // Extract token from cookie for write operations
-    const token = await extractTokenFromCookie();
-    console.log('[POST homepage-settings] Token available?', !!token);
+    // Use server-side GITHUB_TOKEN (PAT) for write operations instead of user OAuth token
+    // This ensures commits use a token with bypass permissions for branch protection
+    const serverToken = process.env.GITHUB_TOKEN;
+    const userToken = await extractTokenFromCookie();
+    
+    console.log('[homepage-settings/POST] GITHUB_TOKEN available:', !!serverToken);
+    console.log('[homepage-settings/POST] Using token from:', serverToken ? 'ENVIRONMENT' : 'COOKIE');
+    
+    const token = serverToken || userToken;
     
     if (!token) {
       console.log('[POST homepage-settings] No token found, returning 401');
