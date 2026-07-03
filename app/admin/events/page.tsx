@@ -11,6 +11,7 @@ interface Event {
   category: string;
   description: string;
   img: string;
+  youtubeUrl?: string;
 }
 
 export default function EventsManager() {
@@ -25,7 +26,8 @@ export default function EventsManager() {
     location: '',
     category: '',
     description: '',
-    img: ''
+    img: '',
+    youtubeUrl: ''
   });
   const [uploadingImage, setUploadingImage] = useState(false);
 
@@ -90,7 +92,8 @@ export default function EventsManager() {
       location: event.location,
       category: event.category,
       description: event.description,
-      img: event.img
+      img: event.img,
+      youtubeUrl: event.youtubeUrl || ''
     });
     setShowForm(true);
   };
@@ -163,7 +166,8 @@ export default function EventsManager() {
       location: '',
       category: '',
       description: '',
-      img: ''
+      img: '',
+      youtubeUrl: ''
     });
     setEditingEvent(null);
     setShowForm(false);
@@ -292,6 +296,18 @@ export default function EventsManager() {
                 </div>
               </div>
               
+              <div>
+                <label className="block text-sm font-medium text-gray-700">YouTube Link (optional)</label>
+                <p className="text-xs text-gray-500 mb-1">Add a YouTube URL if this event has a recording or livestream</p>
+                <input
+                  type="url"
+                  placeholder="e.g., https://www.youtube.com/watch?v=..."
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.youtubeUrl}
+                  onChange={(e) => setFormData({ ...formData, youtubeUrl: e.target.value })}
+                />
+              </div>
+
               <div className="flex space-x-3">
                 <button
                   type="submit"
@@ -342,6 +358,14 @@ export default function EventsManager() {
                   <p><strong>Date:</strong> {event.date}</p>
                   {event.time && <p><strong>Time:</strong> {event.time}</p>}
                   {event.location && <p><strong>Location:</strong> {event.location}</p>}
+                  {event.youtubeUrl && (
+                    <p className="flex items-center space-x-1">
+                      <span className="text-red-600">▶</span>
+                      <a href={event.youtubeUrl} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:underline truncate text-xs">
+                        YouTube link
+                      </a>
+                    </p>
+                  )}
                 </div>
                 <p className="text-sm text-gray-600 mb-4">{event.description}</p>
                 <div className="flex space-x-2">
