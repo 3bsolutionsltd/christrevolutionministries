@@ -20,6 +20,7 @@ interface Event {
   price?: string;
   speakers?: string[];
   agenda?: { time: string; activity: string; }[];
+  youtubeUrl?: string;
 }
 
 export default function EventsPage() {
@@ -79,6 +80,24 @@ export default function EventsPage() {
     if (daysDiff <= 7) return { status: 'This Week', color: 'orange' };
     if (daysDiff <= 30) return { status: 'This Month', color: 'blue' };
     return { status: 'Upcoming', color: 'green' };
+  };
+
+  const getYouTubeEmbedUrl = (url: string): string | null => {
+    try {
+      const parsed = new URL(url);
+      let videoId: string | null = null;
+      if (parsed.hostname.includes('youtube.com')) {
+        videoId = parsed.searchParams.get('v');
+        if (!videoId && parsed.pathname.startsWith('/live/')) {
+          videoId = parsed.pathname.split('/live/')[1]?.split('?')[0] || null;
+        }
+      } else if (parsed.hostname === 'youtu.be') {
+        videoId = parsed.pathname.slice(1).split('?')[0];
+      }
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+    } catch {
+      return null;
+    }
   };
 
   return (
@@ -265,6 +284,16 @@ export default function EventsPage() {
                         {eventStatus.status}
                       </span>
                     </div>
+                    {event.youtubeUrl && (
+                      <div className="absolute top-3 right-3">
+                        <span className="px-2 py-1 rounded-full text-xs font-medium text-white bg-red-600 flex items-center space-x-1">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                          </svg>
+                          <span>Watch</span>
+                        </span>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="p-4">
@@ -414,7 +443,44 @@ export default function EventsPage() {
                 <h3 className="text-xl font-bold text-gray-900 mb-4">About This Event</h3>
                 <p className="text-gray-700 leading-relaxed">{selectedEvent.description || 'Event details coming soon...'}</p>
               </div>
-              
+
+              {selectedEvent.youtubeUrl && (() => {
+                const embedUrl = getYouTubeEmbedUrl(selectedEvent.youtubeUrl);
+                return (
+                  <div className="mb-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center space-x-2">
+                      <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      </svg>
+                      <span>Event Recording</span>
+                    </h3>
+                    {embedUrl ? (
+                      <div className="relative w-full rounded-xl overflow-hidden" style={{ paddingTop: '56.25%' }}>
+                        <iframe
+                          className="absolute inset-0 w-full h-full"
+                          src={embedUrl}
+                          title={`${selectedEvent.title} - YouTube`}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : (
+                      <a
+                        href={selectedEvent.youtubeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 px-6 py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors duration-300"
+                      >
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                        <span>Watch on YouTube</span>
+                      </a>
+                    )}
+                  </div>
+                );
+              })()}
+
               <div className="flex flex-col md:flex-row gap-4">
                 <button className="flex-1 px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors duration-300">
                   Register for Event

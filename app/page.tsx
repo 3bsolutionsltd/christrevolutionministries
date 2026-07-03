@@ -244,7 +244,7 @@ export default function Page() {
             {/* CTA Buttons */}
             <div className="flex flex-col md:flex-row gap-6 justify-center items-center pt-8">
               <a 
-                href="#events" 
+                href="/events" 
                 className="group px-8 py-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold rounded-full shadow-2xl hover:shadow-yellow-400/25 transform hover:scale-105 transition-all duration-300 flex items-center space-x-3"
               >
                 <span>Join Our Services</span>
@@ -254,7 +254,7 @@ export default function Page() {
               </a>
               
               <a 
-                href="#sermons" 
+                href="/sermons" 
                 className="group px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-bold rounded-full border-2 border-white/30 hover:bg-white/20 transform hover:scale-105 transition-all duration-300 flex items-center space-x-3"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -264,7 +264,7 @@ export default function Page() {
               </a>
               
               <a 
-                href="#give" 
+                href="/give" 
                 className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold rounded-full shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 transition-all duration-300 flex items-center space-x-3"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -399,7 +399,7 @@ export default function Page() {
                   
                   <div className="mt-4 pt-4 border-t border-gray-100">
                     <a 
-                      href="#" 
+                      href="/ministries" 
                       className="text-blue-600 font-medium text-sm hover:text-blue-800 transition-colors duration-200 flex items-center space-x-2"
                     >
                       <span>Learn More</span>
@@ -454,10 +454,16 @@ export default function Page() {
             <div>
               <h4 className="text-lg font-bold mb-6">Quick Links</h4>
               <ul className="space-y-3">
-                {['About Us', 'Ministries', 'Events', 'Sermons', 'Contact'].map((link) => (
-                  <li key={link}>
-                    <a href={`#${link.toLowerCase().replace(' ', '')}`} className="text-gray-300 hover:text-white transition-colors duration-200">
-                      {link}
+                {[
+                  { label: 'About Us', href: '/about' },
+                  { label: 'Ministries', href: '/ministries' },
+                  { label: 'Events', href: '/events' },
+                  { label: 'Sermons', href: '/sermons' },
+                  { label: 'Contact', href: '/contact' },
+                ].map(({ label, href }) => (
+                  <li key={label}>
+                    <a href={href} className="text-gray-300 hover:text-white transition-colors duration-200">
+                      {label}
                     </a>
                   </li>
                 ))}
