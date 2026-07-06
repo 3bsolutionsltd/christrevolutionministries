@@ -28,5 +28,15 @@
     "description": "Our annual Love Campaign to bless 50+ families in our community with special Christmas gifts and the love of Christ. Join us in spreading hope and joy!",
     "img": "/uploads/1765285223656_children_ministry.jpg",
     "id": 3
+  },
+  {
+    "title": "Online Bible Sharing",
+    "date": "Every Monday, Tuesday, Thursday and Friday.",
+    "time": "8:30am GMT(East African Time)",
+    "location": "Google meet: https://meet.google.com/hjx-ogvr-fmk",
+    "category": "Community",
+    "description": "A virtual fellowship where believers come together to share God's Word, reflect on daily Scripture, encourage one another, and grow spiritually. Through Bible readings, devotionals, prayers, and meaningful discussions, members strengthen their faith and build a supportive Christian community from wherever they are.",
+    "img": "/uploads/1783323432965_CRM_Online_Devotion_1170x450.jpg",
+    "id": 1783323441053
   }
 ]
