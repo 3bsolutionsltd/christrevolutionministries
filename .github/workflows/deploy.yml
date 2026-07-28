@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      DEPLOY_ENV: ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}
+      DEPLOY_ENV: ${{ ((github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production') || github.ref == 'refs/heads/production') && 'production' || 'staging' }}
     
     steps:
     - name: Checkout code
