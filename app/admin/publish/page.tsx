@@ -6,6 +6,7 @@ interface PublishStatus {
   action: string;
   status: 'idle' | 'loading' | 'success' | 'error';
   message: string;
+  details?: string;
 }
 
 export default function PublishPage() {
@@ -41,16 +42,18 @@ export default function PublishPage() {
         setPublishStatus({
           action,
           status: 'success',
-          message: data.message
+          message: data.message,
+          details: data.details
         });
       } else {
-        throw new Error(data.error || 'Action failed');
+        throw new Error(data.error || data.message || 'Action failed');
       }
     } catch (error) {
       setPublishStatus({
         action,
         status: 'error',
-        message: error instanceof Error ? error.message : 'Unknown error occurred'
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        details: error instanceof Error ? error.stack || undefined : undefined
       });
     }
   };
@@ -80,6 +83,11 @@ export default function PublishPage() {
               )}
               {publishStatus.message}
             </p>
+            {publishStatus.details && (
+              <pre className="mt-3 p-3 bg-gray-100 text-xs text-gray-700 rounded-md overflow-x-auto whitespace-pre-wrap">
+                {publishStatus.details}
+              </pre>
+            )}
           </div>
         )}
 
