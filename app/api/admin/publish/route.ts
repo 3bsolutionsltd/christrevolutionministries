@@ -109,6 +109,19 @@ export async function POST(request: NextRequest) {
       }
 
       if (!deploymentResult.success) {
+        // When no deployment credentials are configured, content is still synced to GitHub.
+        // GitHub Actions automatically deploys on every push to main, so the deployment
+        // will happen automatically — no manual trigger is required.
+        const noCredentials = !githubToken && !webhookUrl;
+        if (noCredentials) {
+          return NextResponse.json({
+            success: true,
+            message: 'Content is already synced to GitHub. Deployment will happen automatically via GitHub Actions.',
+            info: 'To enable manual deployment triggers, set GITHUB_TOKEN or DEPLOYMENT_WEBHOOK_URL in your environment variables.',
+            timestamp: new Date().toISOString()
+          });
+        }
+
         return NextResponse.json(
           {
             success: false,
