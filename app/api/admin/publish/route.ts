@@ -78,7 +78,10 @@ export async function POST(request: NextRequest) {
           if (!response.ok) {
             const errorText = await response.text();
             console.warn('⚠️ GitHub Actions dispatch failed:', errorText);
-            deploymentResult = { success: false, message: `GitHub Actions dispatch failed: ${response.status} ${response.statusText}` };
+            deploymentResult = {
+              success: false,
+              message: `GitHub Actions dispatch failed: ${response.status} ${response.statusText} — ${errorText}`
+            };
           } else {
             deploymentResult = { success: true, message: 'GitHub Actions workflow dispatch triggered successfully.' };
           }

@@ -48,14 +48,19 @@ export default function PublishPage() {
           info: data.info
         });
       } else {
-        throw new Error(data.error || data.message || 'Action failed');
+        setPublishStatus({
+          action,
+          status: 'error',
+          message: data.error || data.message || 'Action failed',
+          details: data.details,
+          info: data.info
+        });
       }
     } catch (error) {
       setPublishStatus({
         action,
         status: 'error',
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
-        details: error instanceof Error ? error.stack || undefined : undefined
+        message: error instanceof Error ? error.message : 'Unknown error occurred'
       });
     }
   };
