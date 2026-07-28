@@ -48,12 +48,12 @@ export async function getSermons() {
 
 export async function getYouTubeLinks() {
   try {
-    const response = await fetch('/api/admin/youtube-links', {
+    // Use static JSON file for production deployment
+    const response = await fetch('/api/youtube-links.json', {
       cache: 'no-store' // Ensure fresh data
     });
-    const data = await response.json();
-    if (data.success) {
-      return data.data;
+    if (response.ok) {
+      return await response.json();
     }
     return [];
   } catch (error) {

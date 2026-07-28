@@ -13,6 +13,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const [loading, setLoading] = useState(true);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isAdminHost, setIsAdminHost] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
@@ -22,6 +23,15 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   }, []);
 
   useEffect(() => {
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+    setIsAdminHost(
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname.includes('vercel.app') ||
+      hostname.includes('admin.christrevolutionministries.org') ||
+      hostname.includes('dev.christrevolutionministries.org')
+    );
+
     checkAuth();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -146,9 +156,14 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <h1 className="text-xl font-semibold text-gray-900">
-                  CRM Admin
-                </h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-xl font-semibold text-gray-900">
+                    CRM Admin
+                  </h1>
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${isAdminHost ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
+                    {isAdminHost ? 'Admin Host' : 'Unsupported Host'}
+                  </span>
+                </div>
               </div>
               
               {/* Primary Navigation - Core items only */}
