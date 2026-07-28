@@ -78,7 +78,18 @@ export async function POST(request: NextRequest) {
           if (!response.ok) {
             const errorText = await response.text();
             console.warn('⚠️ GitHub Actions dispatch failed:', errorText);
-            deploymentResult = { success: false, message: `GitHub Actions dispatch failed: ${response.status} ${response.statusText}` };
+            let hint = '';
+            if (response.status === 403) {
+              hint = ' Ensure your token is a Personal Access Token (classic) with the "workflow" scope enabled.';
+            } else if (response.status === 422) {
+              hint = ' The workflow may not support workflow_dispatch, or the "main" branch was not found.';
+            } else if (response.status === 404) {
+              hint = ' The workflow file "deploy.yml" was not found in the repository.';
+            }
+            deploymentResult = {
+              success: false,
+              message: `GitHub Actions dispatch failed (HTTP ${response.status} ${response.statusText}).${hint} GitHub response: ${errorText}`
+            };
           } else {
             deploymentResult = { success: true, message: 'GitHub Actions workflow dispatch triggered successfully.' };
           }
@@ -109,27 +120,18 @@ export async function POST(request: NextRequest) {
       }
 
       if (!deploymentResult.success) {
-        // When no deployment credentials are configured, content is still synced to GitHub.
-        // GitHub Actions automatically deploys on every push to main, so the deployment
-        // will happen automatically — no manual trigger is required.
-        const noCredentials = !githubToken && !webhookUrl;
-        if (noCredentials) {
-          return NextResponse.json({
-            success: true,
-            message: 'Content is already synced to GitHub. Deployment will happen automatically via GitHub Actions.',
-            info: 'To enable manual deployment triggers, set GITHUB_TOKEN or DEPLOYMENT_WEBHOOK_URL in your environment variables.',
-            timestamp: new Date().toISOString()
-          });
-        }
-
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Unable to trigger deployment. Check GITHUB_TOKEN or DEPLOYMENT_WEBHOOK_URL.',
-            details: deploymentResult.message
-          },
-          { status: 500 }
-        );
+        // Content is already saved to GitHub on every admin save, which triggers the deploy.yml
+        // workflow automatically via the push event. The manual dispatch is a convenience
+        // feature — if it fails, deployment will still happen on the next content save.
+        // Return a warning (not a hard error) so the admin can see the actual reason.
+        console.warn('⚠️ Manual deployment dispatch failed; deployment will occur automatically on next push.');
+        return NextResponse.json({
+          success: true,
+          warning: true,
+          message: 'Content is synced to GitHub. Deployment will happen automatically via GitHub Actions on the next content save.',
+          dispatchError: deploymentResult.message,
+          timestamp: new Date().toISOString()
+        });
       }
 
       return NextResponse.json({
