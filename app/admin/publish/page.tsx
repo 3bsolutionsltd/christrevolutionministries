@@ -4,9 +4,10 @@ import AdminLayout from '../components/AdminLayout';
 
 interface PublishStatus {
   action: string;
-  status: 'idle' | 'loading' | 'success' | 'error';
+  status: 'idle' | 'loading' | 'success' | 'warning' | 'error';
   message: string;
   details?: string;
+  info?: string;
 }
 
 export default function PublishPage() {
@@ -41,9 +42,10 @@ export default function PublishPage() {
       if (data.success) {
         setPublishStatus({
           action,
-          status: 'success',
+          status: data.warning ? 'warning' : 'success',
           message: data.message,
-          details: data.details
+          details: data.details,
+          info: data.info
         });
       } else {
         throw new Error(data.error || data.message || 'Action failed');
@@ -62,6 +64,7 @@ export default function PublishPage() {
     switch (status) {
       case 'loading': return 'text-blue-600';
       case 'success': return 'text-green-600';
+      case 'warning': return 'text-yellow-700';
       case 'error': return 'text-red-600';
       default: return 'text-gray-600';
     }
@@ -74,6 +77,7 @@ export default function PublishPage() {
         {publishStatus.message && (
           <div className={`mb-6 p-4 rounded-lg ${
             publishStatus.status === 'success' ? 'bg-green-50 border border-green-200' :
+            publishStatus.status === 'warning' ? 'bg-yellow-50 border border-yellow-200' :
             publishStatus.status === 'error' ? 'bg-red-50 border border-red-200' :
             'bg-blue-50 border border-blue-200'
           }`}>
@@ -83,6 +87,9 @@ export default function PublishPage() {
               )}
               {publishStatus.message}
             </p>
+            {publishStatus.info && (
+              <p className="mt-2 text-sm text-yellow-800">{publishStatus.info}</p>
+            )}
             {publishStatus.details && (
               <pre className="mt-3 p-3 bg-gray-100 text-xs text-gray-700 rounded-md overflow-x-auto whitespace-pre-wrap">
                 {publishStatus.details}

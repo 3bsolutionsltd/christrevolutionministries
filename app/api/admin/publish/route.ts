@@ -109,6 +109,21 @@ export async function POST(request: NextRequest) {
       }
 
       if (!deploymentResult.success) {
+        const noMethodConfigured = !githubToken && !webhookUrl;
+        if (noMethodConfigured) {
+          // Neither deployment method is configured. Content is already committed to GitHub
+          // and deployment will trigger automatically via the push event on the deploy.yml workflow.
+          // Return a warning rather than a hard error so admins know what happened.
+          console.warn('⚠️ No deployment method configured (GITHUB_TOKEN / DEPLOYMENT_WEBHOOK_URL). Deployment will happen automatically via GitHub push.');
+          return NextResponse.json({
+            success: true,
+            warning: true,
+            message: 'Content is saved to the repository. Automatic deployment via GitHub push is active, but no manual dispatch method is configured.',
+            info: 'To enable manual deployment triggers, set GITHUB_TOKEN (a GitHub PAT with "workflow" scope) or DEPLOYMENT_WEBHOOK_URL in your Vercel environment variables.',
+            timestamp: new Date().toISOString()
+          });
+        }
+
         return NextResponse.json(
           {
             success: false,
