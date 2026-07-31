@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "name": "christrevolutionministries-admin",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/node",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "ADMIN_MODE": "true",
+    "NEXT_CONFIG": "admin"
+  },
+  "build": {
+    "env": {
+      "NODE_ENV": "production",
+      "ADMIN_MODE": "true",
+      "NEXT_CONFIG": "admin"
+    }
+  },
+  "buildCommand": "npm run build:admin-server",
+  "outputDirectory": "out",
+  "installCommand": "npm ci",
+  "devCommand": "npm run dev",
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "functions": {
+    "app/**": {
+      "maxDuration": 30
+    }
+  }
+}

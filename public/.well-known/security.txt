@@ -1,0 +1,6 @@
+# Security Policy for Christ Revolution Ministries
+Contact: mailto:info@christrevolutionministries.org
+Expires: 2026-09-24T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://christrevolutionministries.org/.well-known/security.txt
+Policy: https://christrevolutionministries.org/security-policy

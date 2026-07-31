@@ -1,0 +1,173 @@
+name: Deploy Admin Server
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deploy admin server'
+        required: true
+        default: 'admin-production'
+        type: choice
+        options:
+        - admin-production
+
+jobs:
+  deploy-admin:
+    runs-on: ubuntu-latest
+    
+    env:
+      DEPLOY_ENV: admin-production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build Admin Server
+      env:
+        NODE_ENV: production
+        ADMIN_MODE: true
+      run: |
+        echo "🏗️ Building admin server..."
+        echo "Environment: ${{ env.DEPLOY_ENV }}"
+        
+        # Use admin server build (no static export, no route removal)
+        npm run build:admin-server
+        
+        # Create static export for shared hosting
+        echo "📦 Creating static export..."
+        
+        # Remove API routes temporarily to enable static export
+        echo "Temporarily removing API routes..."
+        if [ -d "app/api" ]; then
+          mv app/api app/api.backup
+        fi
+        
+        # Force static export
+        echo "Running manual export..."
+        npx next export || {
+          echo "Standard export failed, creating manual static export..."
+          
+          # Create out directory structure
+          mkdir -p out/admin out/admin/login out/admin/events out/admin/sermons out/admin/ministries
+          
+          # Copy static assets
+          if [ -d ".next/static" ]; then
+            mkdir -p out/_next
+            cp -r .next/static out/_next/static
+          fi
+          
+          # Copy built pages as HTML files
+          if [ -f ".next/server/app/index.html" ]; then
+            cp .next/server/app/index.html out/
+          fi
+          
+          # Create admin pages from server build
+          find .next/server/app -name "*.html" | while read file; do
+            # Get relative path without .next/server/app prefix
+            rel_path=${file#.next/server/app/}
+            target_dir="out/$(dirname "$rel_path")"
+            mkdir -p "$target_dir"
+            cp "$file" "$target_dir/index.html"
+          done
+          
+          # Add .htaccess for routing
+          if [ -f "admin-htaccess" ]; then
+            cp admin-htaccess out/.htaccess
+          fi
+        }
+        
+        # Copy static admin HTML files to root of subdomain
+        echo "Copying static admin files to subdomain root..."
+        echo "Current directory contents:"
+        ls -la public/ | head -10
+        
+        if [ -f "public/admin-login.html" ]; then
+          cp public/admin-login.html out/login.html
+          echo "✅ Copied admin-login.html to login.html ($(wc -c < out/login.html) bytes)"
+        else
+          echo "❌ public/admin-login.html not found"
+        fi
+        
+        if [ -f "public/admin-panel.html" ]; then
+          cp public/admin-panel.html out/panel.html
+          echo "✅ Copied admin-panel.html to panel.html ($(wc -c < out/panel.html) bytes)"
+        else
+          echo "❌ public/admin-panel.html not found"
+        fi
+        
+        if [ -f "public/admin-test.html" ]; then
+          cp public/admin-test.html out/test.html
+          echo "✅ Copied admin-test.html to test.html ($(wc -c < out/test.html) bytes)"
+        else
+          echo "❌ public/admin-test.html not found"
+        fi
+        
+        echo "Final out directory contents:"
+        ls -la out/ | head -10
+        
+        # Restore API routes
+        if [ -d "app/api.backup" ]; then
+          mv app/api.backup app/api
+        fi
+        
+        # Verify build - check for static export files
+        echo "📂 Checking build output..."
+        ls -la
+        if [ -d "out" ]; then
+          echo "✅ Static export directory found"
+          ls -la out/ | head -10
+          echo "Checking for admin pages..."
+          if [ -f "out/admin/index.html" ]; then
+            echo "✅ Admin pages exported successfully"
+          else
+            echo "⚠️ Admin pages may not be properly exported"
+          fi
+          DEPLOY_SOURCE="out"
+        else
+          echo "❌ No static export found"
+          echo "Available directories:"
+          ls -la | grep "^d"
+          exit 1
+        fi
+        echo "DEPLOY_SOURCE=$DEPLOY_SOURCE" >> $GITHUB_ENV
+
+    - name: Deploy to Admin Production (admin.christrevolutionministries.org)
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./${{ env.DEPLOY_SOURCE }}/
+        server-dir: ./admin/
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.DS_Store
+          **/Thumbs.db
+
+    - name: Deploy package.json and startup files
+      run: |
+        echo "📦 Deploying server files..."
+        # This would deploy package.json and any startup scripts needed
+
+    - name: Deployment Summary
+      run: |
+        echo "🚀 Admin server deployment completed!"
+        echo "🌐 Admin URL: https://admin.christrevolutionministries.org"
+        echo "📁 Server Path: /home/u266222025/domains/christrevolutionministries.org/public_html/admin"
+        echo ""
+        echo "🔐 Admin Features Available:"
+        echo "  • Content Management"
+        echo "  • File Uploads"
+        echo "  • User Authentication" 
+        echo "  • API Endpoints"

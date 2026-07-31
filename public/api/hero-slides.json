@@ -1,0 +1,44 @@
+[
+  {
+    "title": "Welcome to Christ Revolution Ministries",
+    "subtitle": "Transforming Lives Through God's Love",
+    "image": "/uploads/1765275832175_worship_moment.jpg",
+    "order": 1,
+    "active": true,
+    "ctaText": "",
+    "ctaLink": "",
+    "id": "slide-1"
+  },
+  {
+    "title": "Join Us for Worship",
+    "subtitle": "Come and experience extraordinary communion with the Holy Spirit",
+    "image": "/uploads/1765276062868_congegation.jpg",
+    "order": 2,
+    "active": true,
+    "ctaText": "Join Our Service",
+    "ctaLink": "#service",
+    "id": "slide-2",
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  },
+  {
+    "title": "Experience God's Love",
+    "subtitle": "Igniting the Next Generation for Christ",
+    "image": "/uploads/1765280252408_children_dancing.jpg",
+    "order": 3,
+    "active": true,
+    "ctaText": "",
+    "ctaLink": "",
+    "id": "slide-3"
+  },
+  {
+    "title": "Prayer Ministry",
+    "subtitle": "Our Prayer Ministry is the heartbeat of our church, where we gather to intercede for our community, nation, and world. We believe in the power of united prayer that moves mountains and changes lives.",
+    "image": "/uploads/1765552342205_congegation.jpg",
+    "order": 4,
+    "active": true,
+    "ctaText": "Join Our Prayer Sessions Today",
+    "ctaLink": "",
+    "id": 1765552351759
+  }
+]

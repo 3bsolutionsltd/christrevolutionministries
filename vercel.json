@@ -1,0 +1,8 @@
+{
+  "build": {
+    "env": {
+      "NEXT_CONFIG": "admin",
+      "ADMIN_MODE": "true"
+    }
+  }
+}

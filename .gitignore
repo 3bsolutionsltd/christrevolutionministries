@@ -1,0 +1,88 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+
+# Work Product Documentation (Internal Use Only)
+# Keep only README.md and CONTRIBUTING.md for public
+ADMIN_*.md
+CLIENT_*.md
+CMS_*.md
+DEPLOYMENT*.md
+GIT_WORKFLOW.md
+GITHUB_*.md
+LOCAL_*.md
+OAuth_*.md
+PROJECT-*.md
+render-*.md
+REPOSITORY_*.md
+SANITY_*.md
+SECURITY_*.md
+SEO-*.md
+SOLUTION_*.md
+STAGING_*.md
+TEST_*.md
+VERCEL_*.md
+WEBSITE_*.md
+CHRIST-REVOLUTION-MINISTRIES.md
+REPOSITORY_PROTECTION_GUIDE.md
+index.md
+
+# Security & Logs
+/logs/
+*.log
+security-check.log
+admin-htaccess
+
+# Deployment Scripts (contain sensitive info)
+setup-deployment.ps1
+setup-deployment.sh
+deploy-content.ps1
+create-develop-branch.ps1
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OAuth service (may contain credentials)
+/oauth-service/

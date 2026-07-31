@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Youth Ministry",
+    "desc": "Our Youth Ministry is a dynamic community where teenagers discover their identity in Christ, build lasting friendships, and develop leadership skills that will impact their generation and beyond.",
+    "img": "/uploads/1765277801813_youth_ministry.jpg",
+    "icon": "👥",
+    "id": 1
+  },
+  {
+    "title": "Evangelism",
+    "desc": "Our Evangelism Ministry is passionate about reaching the lost and equipping believers to share the Good News of Jesus Christ with boldness, love, and authenticity.",
+    "img": "/evangelism-web-330x290.jpg",
+    "icon": "📖",
+    "id": 2
+  },
+  {
+    "title": "Worship & Music",
+    "desc": "Our Worship & Music Ministry creates an atmosphere where hearts connect with God through powerful worship, inspiring music, and authentic praise that transforms lives.",
+    "img": "/uploads/1765277919227_music_ministry.jpg",
+    "icon": "🎵",
+    "id": 3
+  },
+  {
+    "title": "Children's Ministry",
+    "desc": "Our Children's Ministry is dedicated to creating a safe, fun, and engaging environment where children can discover God's love and grow in their faith journey. We believe that children are not just the church of tomorrow, but an important part of God's family today.",
+    "img": "/uploads/1765278169402_children_ministry_second.jpg",
+    "icon": "",
+    "id": 1765278171918
+  }
+]

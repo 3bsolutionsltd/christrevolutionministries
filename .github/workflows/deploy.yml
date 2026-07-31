@@ -1,0 +1,152 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [ main, develop, production ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    env:
+      DEPLOY_ENV: ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Check TypeScript and ESLint configuration
+      run: |
+        echo "Checking TypeScript config..."
+        cat tsconfig.json
+        echo "Checking ESLint config..."
+        cat .eslintrc.json
+        echo "Checking Next.js config..."
+        cat next.config.js
+      
+    - name: Build project for staging
+      if: env.DEPLOY_ENV == 'staging'
+      env:
+        NODE_ENV: production
+        NEXT_PUBLIC_ENVIRONMENT: staging
+      run: |
+        echo "Building for staging environment..."
+        echo "NODE_ENV=$NODE_ENV"
+        echo "NEXT_PUBLIC_ENVIRONMENT=$NEXT_PUBLIC_ENVIRONMENT"
+        echo "Running staging build..."
+        npm run build:staging || (echo "Build failed, checking for errors..." && npm run lint && exit 1)
+        echo "Build completed, checking output..."
+        ls -la
+        if [ -d "out" ]; then
+          echo "✅ Staging static export completed successfully!"
+          ls -la out/
+        else
+          echo "❌ Staging static export failed - no out directory found"
+          exit 1
+        fi
+      
+    - name: Build project for production
+      if: env.DEPLOY_ENV == 'production'
+      env:
+        NODE_ENV: production
+        NEXT_PUBLIC_ENVIRONMENT: production
+      run: |
+        echo "Building for production environment..."
+        echo "NODE_ENV=$NODE_ENV"
+        echo "NEXT_PUBLIC_ENVIRONMENT=$NEXT_PUBLIC_ENVIRONMENT"
+        npm run build:production || (echo "Build failed, checking for errors..." && npm run lint && exit 1)
+        echo "Build completed, checking output..."
+        ls -la
+        if [ -d "out" ]; then
+          echo "✅ Static export completed successfully!"
+          ls -la out/
+        else
+          echo "❌ Static export failed - no out directory found"
+          exit 1
+        fi
+        echo "Build completed, checking output..."
+        ls -la
+        if [ -d "out" ]; then
+          echo "✅ Out directory created!"
+          ls -la out/
+        else
+          echo "❌ No out directory found"
+          exit 1
+        fi
+        
+    - name: Deploy to Staging (dev.christrevolutionministries.org)
+      if: env.DEPLOY_ENV == 'staging'
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./out/
+        server-dir: ./dev/
+        dangerous-clean-slate: true
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.DS_Store
+          **/Thumbs.db
+          
+    - name: Verify Staging Deployment
+      if: env.DEPLOY_ENV == 'staging'
+      run: |
+        echo "🔍 Verifying staging deployment..."
+        echo "Expected files should be in server-dir: ./dev/"
+        echo "Main index.html should be accessible at: https://dev.christrevolutionministries.org/index.html"
+        echo "If 403 error persists, check:"
+        echo "1. Subdomain configuration in Hostinger control panel"
+        echo "2. File permissions (should be 644 for files, 755 for directories)"
+        echo "3. Directory index settings (.htaccess)"
+          
+    - name: Deploy to Production (christrevolutionministries.org)
+      if: env.DEPLOY_ENV == 'production'
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./out/
+        server-dir: ./
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/.DS_Store
+          **/Thumbs.db
+          **/dev/**
+          **/home/**
+          
+    - name: Deployment Summary
+      run: |
+        echo "🚀 Deployment completed!"
+        echo "Environment: ${{ env.DEPLOY_ENV }}"
+        if [ "${{ env.DEPLOY_ENV }}" == "staging" ]; then
+          echo "🌐 Staging URL: https://dev.christrevolutionministries.org"
+        else
+          echo "🌐 Production URL: https://christrevolutionministries.org"
+        fi

@@ -1,0 +1,32 @@
+[
+  {
+    "title": "CRM 3rd Anniversary",
+    "date": "Sept 14, 2025",
+    "time": "7:00 AM",
+    "location": "Main Sanctuary",
+    "category": "Other",
+    "description": "Come join us as we celebrate 3 years of God's faithfulness. ",
+    "img": "/uploads/1765285094074_congregation_slide.jpg",
+    "id": 1
+  },
+  {
+    "title": "Christmas Extravaganza 2025",
+    "date": "2025-12-13",
+    "time": "9:00 AM",
+    "location": "Bulaga, Nakabugo Zion Estate - Doctor's Drive",
+    "category": "Other",
+    "description": "A magical Christmas celebration for the whole family! Join us for an evening of music, drama, gifts, and the joy of celebrating Christ's birth together.",
+    "img": "/uploads/1765285183434_anniversary.jpg",
+    "id": 2
+  },
+  {
+    "title": "Love Campaign 2025",
+    "date": "2025-12-21",
+    "time": "10:00 AM",
+    "location": "Community Outreach - Bulaga Area",
+    "category": "Outreach",
+    "description": "Our annual Love Campaign to bless 50+ families in our community with special Christmas gifts and the love of Christ. Join us in spreading hope and joy!",
+    "img": "/uploads/1765285223656_children_ministry.jpg",
+    "id": 3
+  }
+]
