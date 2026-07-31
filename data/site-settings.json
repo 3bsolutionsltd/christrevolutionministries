@@ -40,5 +40,18 @@
     "copyright": "© 2024 Christ Revolution Ministries. All rights reserved.",
     "additionalText": "Blessed to be a blessing to our community and beyond."
   },
+  "giving": {
+    "heroTitle": "Give with Purpose",
+    "heroSubtitle": "Your generous giving helps us spread God's love, support our community, and advance His kingdom through the Love Campaign and ministry programs.",
+    "mobileMoneyNumber": "+256-772-245292",
+    "mobileMoneyName": "Samuel Isiko",
+    "airtelMoneyNumber": "+256-701-234567",
+    "airtelMoneyName": "Samuel Isiko",
+    "bankName": "Stanbic Bank Uganda",
+    "bankAccountNumber": "9030006789123",
+    "bankAccountName": "Christ Revolution Ministries",
+    "bankBranch": "Kampala Main Branch",
+    "referenceNote": "Please include your name and \"CRM Giving\" in the payment reference"
+  },
   "lastUpdated": "2024-01-01T00:00:00Z"
 }

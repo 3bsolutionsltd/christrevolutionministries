@@ -11,6 +11,7 @@ interface Event {
   category: string;
   description: string;
   img: string;
+  eventLink?: string;
 }
 
 export default function EventsManager() {
@@ -25,7 +26,8 @@ export default function EventsManager() {
     location: '',
     category: '',
     description: '',
-    img: ''
+    img: '',
+    eventLink: ''
   });
   const [uploadingImage, setUploadingImage] = useState(false);
 
@@ -90,7 +92,8 @@ export default function EventsManager() {
       location: event.location,
       category: event.category,
       description: event.description,
-      img: event.img
+      img: event.img,
+      eventLink: event.eventLink || ''
     });
     setShowForm(true);
   };
@@ -163,7 +166,8 @@ export default function EventsManager() {
       location: '',
       category: '',
       description: '',
-      img: ''
+      img: '',
+      eventLink: ''
     });
     setEditingEvent(null);
     setShowForm(false);
@@ -258,6 +262,17 @@ export default function EventsManager() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Event Link (Optional)</label>
+                <input
+                  type="url"
+                  placeholder="https://... or https://meet.google.com/..."
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={formData.eventLink}
+                  onChange={(e) => setFormData({ ...formData, eventLink: e.target.value })}
+                />
+              </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700">Image</label>
@@ -344,6 +359,16 @@ export default function EventsManager() {
                   {event.location && <p><strong>Location:</strong> {event.location}</p>}
                 </div>
                 <p className="text-sm text-gray-600 mb-4">{event.description}</p>
+                {event.eventLink && (
+                  <a
+                    href={event.eventLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex mb-4 text-sm font-medium text-blue-700 hover:text-blue-900"
+                  >
+                    Open Event Link
+                  </a>
+                )}
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleEdit(event)}

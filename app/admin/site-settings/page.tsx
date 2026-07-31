@@ -41,7 +41,74 @@ interface SiteSettings {
     copyright: string;
     additionalText: string;
   };
+  giving: {
+    heroTitle: string;
+    heroSubtitle: string;
+    mobileMoneyNumber: string;
+    mobileMoneyName: string;
+    airtelMoneyNumber: string;
+    airtelMoneyName: string;
+    bankName: string;
+    bankAccountNumber: string;
+    bankAccountName: string;
+    bankBranch: string;
+    referenceNote: string;
+  };
 }
+
+const defaultSiteSettings: SiteSettings = {
+  contact: {
+    email: 'info@christrevolutionministries.org',
+    phone: '+256-772-245292',
+    address: {
+      street: 'Bulaga, Nakabugo Zion Estate',
+      city: 'Kampala, Uganda',
+      state: 'Doctor\'s Drive',
+      zip: ''
+    }
+  },
+  socialLinks: {
+    facebook: '',
+    twitter: '',
+    youtube: '',
+    instagram: '',
+    linkedin: ''
+  },
+  seo: {
+    title: 'Christ Revolution Ministries',
+    description: '',
+    keywords: '',
+    ogImage: ''
+  },
+  services: {
+    sundayService: {
+      time: '',
+      description: ''
+    },
+    wednesdayService: {
+      time: '',
+      description: ''
+    },
+    otherServices: []
+  },
+  footer: {
+    copyright: '© 2025 Christ Revolution Ministries. All rights reserved.',
+    additionalText: ''
+  },
+  giving: {
+    heroTitle: 'Give with Purpose',
+    heroSubtitle: 'Your generous giving helps us spread God\'s love, support our community, and advance His kingdom.',
+    mobileMoneyNumber: '+256-772-245292',
+    mobileMoneyName: 'Samuel Isiko',
+    airtelMoneyNumber: '+256-701-234567',
+    airtelMoneyName: 'Samuel Isiko',
+    bankName: 'Stanbic Bank Uganda',
+    bankAccountNumber: '9030006789123',
+    bankAccountName: 'Christ Revolution Ministries',
+    bankBranch: 'Kampala Main Branch',
+    referenceNote: 'Please include your name and "CRM Giving" in the payment reference'
+  }
+};
 
 export default function SiteSettingsManager() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
@@ -58,7 +125,48 @@ export default function SiteSettingsManager() {
       const response = await fetch('/api/admin/site-settings', { credentials: 'include' });
       const data = await response.json();
       if (data.success) {
-        setSettings(data.data);
+        const incoming = data.data || {};
+        setSettings({
+          ...defaultSiteSettings,
+          ...incoming,
+          contact: {
+            ...defaultSiteSettings.contact,
+            ...(incoming.contact || {}),
+            address: {
+              ...defaultSiteSettings.contact.address,
+              ...((incoming.contact && incoming.contact.address) || {})
+            }
+          },
+          socialLinks: {
+            ...defaultSiteSettings.socialLinks,
+            ...(incoming.socialLinks || {})
+          },
+          seo: {
+            ...defaultSiteSettings.seo,
+            ...(incoming.seo || {})
+          },
+          services: {
+            ...defaultSiteSettings.services,
+            ...(incoming.services || {}),
+            sundayService: {
+              ...defaultSiteSettings.services.sundayService,
+              ...((incoming.services && incoming.services.sundayService) || {})
+            },
+            wednesdayService: {
+              ...defaultSiteSettings.services.wednesdayService,
+              ...((incoming.services && incoming.services.wednesdayService) || {})
+            },
+            otherServices: incoming.services?.otherServices || defaultSiteSettings.services.otherServices
+          },
+          footer: {
+            ...defaultSiteSettings.footer,
+            ...(incoming.footer || {})
+          },
+          giving: {
+            ...defaultSiteSettings.giving,
+            ...(incoming.giving || {})
+          }
+        });
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -562,6 +670,160 @@ export default function SiteSettingsManager() {
                   footer: { ...settings.footer, additionalText: e.target.value }
                 })}
               />
+            </div>
+          </div>
+
+          {/* Giving Settings */}
+          <div className="bg-white shadow rounded-lg p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Giving Settings</h3>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Giving Hero Title</label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    value={settings.giving.heroTitle}
+                    onChange={(e) => setSettings({
+                      ...settings,
+                      giving: { ...settings.giving, heroTitle: e.target.value }
+                    })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Giving Reference Note</label>
+                  <input
+                    type="text"
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    value={settings.giving.referenceNote}
+                    onChange={(e) => setSettings({
+                      ...settings,
+                      giving: { ...settings.giving, referenceNote: e.target.value }
+                    })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Giving Hero Subtitle</label>
+                <textarea
+                  rows={2}
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  value={settings.giving.heroSubtitle}
+                  onChange={(e) => setSettings({
+                    ...settings,
+                    giving: { ...settings.giving, heroSubtitle: e.target.value }
+                  })}
+                />
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold text-gray-800 mb-3">Mobile Money Accounts</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">MTN Number</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={settings.giving.mobileMoneyNumber}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        giving: { ...settings.giving, mobileMoneyNumber: e.target.value }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">MTN Account Name</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={settings.giving.mobileMoneyName}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        giving: { ...settings.giving, mobileMoneyName: e.target.value }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Airtel Number</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={settings.giving.airtelMoneyNumber}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        giving: { ...settings.giving, airtelMoneyNumber: e.target.value }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Airtel Account Name</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={settings.giving.airtelMoneyName}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        giving: { ...settings.giving, airtelMoneyName: e.target.value }
+                      })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold text-gray-800 mb-3">Bank Account</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Bank Name</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={settings.giving.bankName}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        giving: { ...settings.giving, bankName: e.target.value }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Branch</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={settings.giving.bankBranch}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        giving: { ...settings.giving, bankBranch: e.target.value }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Account Number</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={settings.giving.bankAccountNumber}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        giving: { ...settings.giving, bankAccountNumber: e.target.value }
+                      })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Account Name</label>
+                    <input
+                      type="text"
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      value={settings.giving.bankAccountName}
+                      onChange={(e) => setSettings({
+                        ...settings,
+                        giving: { ...settings.giving, bankAccountName: e.target.value }
+                      })}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

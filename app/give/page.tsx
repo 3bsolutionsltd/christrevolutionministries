@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
+import { getSiteSettings } from '../lib/data-fetchers';
 
 interface GivingOption {
   title: string;
@@ -31,7 +32,23 @@ interface PaymentMethod {
   details?: string[];
 }
 
-const givingOptions: GivingOption[] = [
+interface GiveSiteSettings {
+  giving?: {
+    heroTitle?: string;
+    heroSubtitle?: string;
+    mobileMoneyNumber?: string;
+    mobileMoneyName?: string;
+    airtelMoneyNumber?: string;
+    airtelMoneyName?: string;
+    bankName?: string;
+    bankAccountNumber?: string;
+    bankAccountName?: string;
+    bankBranch?: string;
+    referenceNote?: string;
+  };
+}
+
+const defaultGivingOptions: GivingOption[] = [
   {
     title: 'Love Campaign',
     description: 'Supporting Love Campaign initiatives to spread God\'s love in communities',
@@ -82,7 +99,7 @@ const givingOptions: GivingOption[] = [
   }
 ];
 
-const paymentMethods: PaymentMethod[] = [
+const defaultPaymentMethods: PaymentMethod[] = [
   {
     name: 'Mobile Money',
     icon: '📱',
@@ -130,11 +147,25 @@ export default function GivePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [showThankYou, setShowThankYou] = useState(false);
+  const [siteSettings, setSiteSettings] = useState<GiveSiteSettings | null>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await getSiteSettings();
+        setSiteSettings(settings);
+      } catch (error) {
+        console.error('Error fetching site settings for give page:', error);
+      }
+    };
+
+    fetchSettings();
   }, []);
 
   const formatAmount = (amount: number) => {
@@ -149,6 +180,49 @@ export default function GivePage() {
     setShowThankYou(true);
     setTimeout(() => setShowThankYou(false), 3000);
   };
+
+  const givingConfig = siteSettings?.giving || {};
+  const heroTitle = givingConfig.heroTitle || 'Give with Purpose';
+  const heroSubtitle =
+    givingConfig.heroSubtitle ||
+    "Your generous giving helps us spread God's love, support our community, and advance His kingdom through the Love Campaign and ministry programs.";
+  const referenceNote =
+    givingConfig.referenceNote ||
+    'Please include your name and "CRM Giving" in the payment reference';
+
+  const paymentMethods: PaymentMethod[] = [
+    {
+      name: 'Mobile Money',
+      icon: defaultPaymentMethods[0].icon,
+      description: defaultPaymentMethods[0].description,
+      accounts: [
+        {
+          provider: 'MTN Mobile Money',
+          number: givingConfig.mobileMoneyNumber || '+256-772-245292',
+          name: givingConfig.mobileMoneyName || 'Samuel Isiko'
+        },
+        {
+          provider: 'Airtel Money',
+          number: givingConfig.airtelMoneyNumber || '+256-701-234567',
+          name: givingConfig.airtelMoneyName || 'Samuel Isiko'
+        }
+      ]
+    },
+    {
+      name: 'Bank Transfer',
+      icon: defaultPaymentMethods[1].icon,
+      description: defaultPaymentMethods[1].description,
+      accounts: [
+        {
+          bank: givingConfig.bankName || 'Stanbic Bank Uganda',
+          accountNumber: givingConfig.bankAccountNumber || '9030006789123',
+          accountName: givingConfig.bankAccountName || 'Christ Revolution Ministries',
+          branch: givingConfig.bankBranch || 'Kampala Main Branch'
+        }
+      ]
+    },
+    defaultPaymentMethods[2]
+  ];
 
   return (
     <div className="min-h-screen bg-white text-gray-900 font-sans">
@@ -305,10 +379,10 @@ export default function GivePage() {
         
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
           <h1 className="text-5xl md:text-6xl font-black text-white mb-6">
-            Give with <span className="text-yellow-400">Purpose</span>
+            {heroTitle}
           </h1>
           <p className="text-xl md:text-2xl text-green-200 max-w-4xl mx-auto leading-relaxed mb-8">
-            Your generous giving helps us spread God's love, support our community, and advance His kingdom through the Love Campaign and ministry programs.
+            {heroSubtitle}
           </p>
           
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 max-w-2xl mx-auto border border-white/20">
@@ -330,7 +404,7 @@ export default function GivePage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {givingOptions.map((option, index) => (
+            {defaultGivingOptions.map((option) => (
               <div 
                 key={option.title}
                 className={`group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 cursor-pointer ${
@@ -509,7 +583,7 @@ export default function GivePage() {
                 <ul className="space-y-2 text-sm text-gray-700">
                   <li className="flex items-start space-x-2">
                     <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></span>
-                    <span>Please include your name and "CRM Giving" in the payment reference</span>
+                    <span>{referenceNote}</span>
                   </li>
                   <li className="flex items-start space-x-2">
                     <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></span>

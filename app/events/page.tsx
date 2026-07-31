@@ -20,6 +20,7 @@ interface Event {
   price?: string;
   speakers?: string[];
   agenda?: { time: string; activity: string; }[];
+  eventLink?: string;
 }
 
 export default function EventsPage() {
@@ -286,6 +287,17 @@ export default function EventsPage() {
                     <button className="w-full mt-3 px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors duration-200">
                       Learn More
                     </button>
+                    {event.eventLink && (
+                      <a
+                        href={event.eventLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="block w-full mt-2 px-3 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition-colors duration-200 text-center"
+                      >
+                        Open Event Link
+                      </a>
+                    )}
                   </div>
                 </div>
               );
@@ -416,9 +428,20 @@ export default function EventsPage() {
               </div>
               
               <div className="flex flex-col md:flex-row gap-4">
-                <button className="flex-1 px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors duration-300">
-                  Register for Event
-                </button>
+                {selectedEvent.eventLink ? (
+                  <a
+                    href={selectedEvent.eventLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors duration-300 text-center"
+                  >
+                    Register for Event
+                  </a>
+                ) : (
+                  <button className="flex-1 px-8 py-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors duration-300">
+                    Register for Event
+                  </button>
+                )}
                 <button className="px-8 py-4 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition-colors duration-300">
                   Add to Calendar
                 </button>
