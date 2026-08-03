@@ -49,7 +49,10 @@ export async function POST(request: NextRequest) {
 
     if (action === 'publish') {
       // Content is already in GitHub, deployment happens automatically via GitHub Actions
-      console.log(`📤 Publishing to ${target}...`);
+      const normalizedTarget = target === 'production' ? 'production' : 'staging';
+      const dispatchRef = normalizedTarget === 'production' ? 'production' : 'main';
+
+      console.log(`📤 Publishing to ${normalizedTarget} via branch ${dispatchRef}...`);
 
       const webhookUrl = process.env.DEPLOYMENT_WEBHOOK_URL;
       const githubToken = process.env.GITHUB_TOKEN;
@@ -67,9 +70,9 @@ export async function POST(request: NextRequest) {
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                ref: 'main',
+                ref: dispatchRef,
                 inputs: {
-                  environment: target
+                  environment: normalizedTarget
                 }
               })
             }
@@ -93,7 +96,7 @@ export async function POST(request: NextRequest) {
           const response = await fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ target, timestamp: new Date().toISOString() })
+            body: JSON.stringify({ target: normalizedTarget, timestamp: new Date().toISOString() })
           });
 
           if (!response.ok) {
