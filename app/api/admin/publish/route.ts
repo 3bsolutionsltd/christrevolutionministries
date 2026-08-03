@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
 
       if (githubToken) {
         try {
+          const dispatchRef = target === 'production' ? 'production' : 'main';
           const response = await fetch(
             `https://api.github.com/repos/3bsolutionsltd/christrevolutionministries/actions/workflows/deploy.yml/dispatches`,
             {
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                ref: 'main',
+                ref: dispatchRef,
                 inputs: {
                   environment: target
                 }
@@ -82,7 +83,7 @@ export async function POST(request: NextRequest) {
             if (response.status === 403) {
               hint = ' Ensure your token is a Personal Access Token (classic) with the "workflow" scope enabled.';
             } else if (response.status === 422) {
-              hint = ' The workflow may not support workflow_dispatch, or the "main" branch was not found.';
+              hint = ` The workflow may not support workflow_dispatch, or the "${dispatchRef}" branch was not found.`;
             } else if (response.status === 404) {
               hint = ' The workflow file "deploy.yml" was not found in the repository.';
             }
