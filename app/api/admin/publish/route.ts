@@ -1,6 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '../../auth/middleware';
 
+const GITHUB_API = 'https://api.github.com';
+const REPO_OWNER = '3bsolutionsltd';
+const REPO_NAME = 'christrevolutionministries';
+const DEPLOY_WORKFLOW = 'deploy.yml';
+
+async function dispatchDeployment(target: 'staging' | 'production') {
+  const githubToken = process.env.GITHUB_TOKEN;
+
+  if (!githubToken) {
+    throw new Error('GITHUB_TOKEN is not configured for deployment dispatches');
+  }
+
+  const response = await fetch(
+    `${GITHUB_API}/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${DEPLOY_WORKFLOW}/dispatches`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${githubToken}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      body: JSON.stringify({
+        ref: 'main',
+        inputs: {
+          environment: target
+        }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`GitHub workflow dispatch failed: ${response.status} ${response.statusText} ${details}`.trim());
+  }
+}
+
 /**
  * Publish Content API
  * Allows admin to publish changes to static sites
@@ -48,81 +85,34 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'publish') {
-      // Content is already in GitHub, deployment happens automatically via GitHub Actions
+      if (target !== 'staging' && target !== 'production') {
+        return NextResponse.json(
+          { error: 'Invalid publish target. Use "staging" or "production"' },
+          { status: 400 }
+        );
+      }
+
+      // Content is saved to the main branch by admin edits.
+      // Publishing dispatches the workflow from main and tells it which environment to deploy.
       console.log(`📤 Publishing to ${target}...`);
-
-      const webhookUrl = process.env.DEPLOYMENT_WEBHOOK_URL;
-      const githubToken = process.env.GITHUB_TOKEN;
-      let deploymentResult = { success: false, message: '' };
-
-      if (githubToken) {
-        try {
-          const response = await fetch(
-            `https://api.github.com/repos/3bsolutionsltd/christrevolutionministries/actions/workflows/deploy.yml/dispatches`,
-            {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${githubToken}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                ref: 'main',
-                inputs: {
-                  environment: target
-                }
-              })
-            }
-          );
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.warn('⚠️ GitHub Actions dispatch failed:', errorText);
-            deploymentResult = { success: false, message: `GitHub Actions dispatch failed: ${response.status} ${response.statusText}` };
-          } else {
-            deploymentResult = { success: true, message: 'GitHub Actions workflow dispatch triggered successfully.' };
-          }
-        } catch (dispatchError) {
-          console.warn('⚠️ GitHub Actions dispatch error:', dispatchError);
-          deploymentResult = { success: false, message: `GitHub Actions dispatch error: ${dispatchError}` };
-        }
-      }
-
-      if (!deploymentResult.success && webhookUrl) {
-        try {
-          const response = await fetch(webhookUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ target, timestamp: new Date().toISOString() })
-          });
-
-          if (!response.ok) {
-            console.warn('⚠️ Deployment webhook failed:', response.statusText);
-            deploymentResult = { success: false, message: `Deployment webhook failed: ${response.statusText}` };
-          } else {
-            deploymentResult = { success: true, message: 'Deployment webhook triggered successfully.' };
-          }
-        } catch (webhookError) {
-          console.warn('⚠️ Deployment webhook error:', webhookError);
-          deploymentResult = { success: false, message: `Deployment webhook error: ${webhookError}` };
-        }
-      }
-
-      if (!deploymentResult.success) {
+      try {
+        await dispatchDeployment(target);
+      } catch (dispatchError) {
+        console.warn('⚠️ GitHub Actions dispatch error:', dispatchError);
         return NextResponse.json(
           {
             success: false,
-            error: 'Unable to trigger deployment. Check GITHUB_TOKEN or DEPLOYMENT_WEBHOOK_URL.',
-            details: deploymentResult.message
+            error: 'Unable to trigger deployment. Check GITHUB_TOKEN permissions for workflow dispatch.',
+            details: dispatchError instanceof Error ? dispatchError.message : String(dispatchError)
           },
           { status: 500 }
         );
       }
-
+      
       return NextResponse.json({
         success: true,
-        message: `Content published! ${deploymentResult.message}`,
-        info: 'Changes are committed to GitHub and deployment has been triggered.',
+        message: `Deployment to ${target} started successfully.`,
+        info: `GitHub Actions is building the latest content from the main branch for ${target}.`,
         timestamp: new Date().toISOString()
       });
     }

@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      DEPLOY_ENV: ${{ github.ref == 'refs/heads/production' && 'production' || 'staging' }}
+      DEPLOY_ENV: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || (github.ref == 'refs/heads/production' && 'production' || 'staging') }}
     
     steps:
     - name: Checkout code
@@ -145,6 +145,7 @@ jobs:
       run: |
         echo "🚀 Deployment completed!"
         echo "Environment: ${{ env.DEPLOY_ENV }}"
+        echo "Source ref: ${{ github.ref }}"
         if [ "${{ env.DEPLOY_ENV }}" == "staging" ]; then
           echo "🌐 Staging URL: https://dev.christrevolutionministries.org"
         else
